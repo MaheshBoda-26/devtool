@@ -1,0 +1,348 @@
+.section {
+  /* empty base */
+}
+
+.title {
+  margin-bottom: var(--space-xs);
+}
+
+.subtitle {
+  margin-bottom: var(--space-lg);
+}
+
+.filters {
+  display: grid;
+  gap: var(--space-md);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  padding: var(--space-lg);
+  border: 1px solid var(--border-faint);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  margin-bottom: var(--space-lg);
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.filterLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.checkboxBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  align-items: center;
+  grid-column: 1 / -1;
+  padding-top: var(--space-xs);
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--ink-dim);
+  cursor: pointer;
+  user-select: none;
+
+  &:hover {
+    color: var(--ink);
+  }
+}
+
+.searchBtn {
+  padding: 10px 16px;
+  background: var(--primary);
+  color: oklch(1 0 none);
+  font-weight: 600;
+  font-size: 0.875rem;
+  border: none;
+  border-radius: var(--radius-md);
+  margin-left: auto;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
+
+  &:hover {
+    background: var(--primary-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.error {
+  padding: var(--space-md);
+  border-radius: var(--radius-lg);
+  background: var(--error-muted);
+  color: var(--error);
+  border: 1px solid oklch(0.55 0.18 25 / 0.25);
+  font-size: 0.875rem;
+  margin-bottom: var(--space-md);
+
+  strong {
+    color: var(--error);
+  }
+}
+
+.loading {
+  color: var(--muted);
+  font-size: 0.875rem;
+  margin-top: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.loadingDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: pulse 1.2s var(--ease-out) infinite;
+
+  &:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+
+  &:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+}
+
+@keyframes pulse {
+  0%, 60%, 100% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.empty {
+  color: var(--muted);
+  font-size: 0.9375rem;
+  padding: var(--space-2xl) 0;
+  text-align: center;
+}
+
+.notConfigured {
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  background: var(--warning-muted);
+  color: var(--warning);
+  border: 1px solid oklch(0.62 0.14 75 / 0.25);
+  font-size: 0.875rem;
+  line-height: 1.5;
+
+  strong {
+    color: var(--warning);
+  }
+
+  code {
+    background: oklch(0.62 0.14 75 / 0.15);
+    color: var(--warning);
+    border-color: oklch(0.62 0.14 75 / 0.2);
+  }
+}
+
+.resultCount {
+  color: var(--muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin-top: var(--space-lg);
+  margin-bottom: var(--space-md);
+  letter-spacing: 0.02em;
+}
+
+.list {
+  display: grid;
+  gap: var(--space-md);
+}
+
+.jobCard {
+  background: var(--surface);
+  border: 1px solid var(--border-faint);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  transition:
+    border-color var(--duration-fast) var(--ease-out),
+    background var(--duration-fast) var(--ease-out);
+
+  &:hover {
+    border-color: var(--border);
+    background: var(--surface-raised);
+  }
+}
+
+.jobHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-md);
+  align-items: baseline;
+}
+
+.jobTitle {
+  font-weight: 600;
+  font-size: 1.0625rem;
+  color: var(--primary);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
+
+  &:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
+  }
+}
+
+.salary {
+  color: var(--success);
+  font-size: 0.875rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.jobMeta {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  align-items: baseline;
+  color: var(--ink-dim);
+  font-size: 0.875rem;
+  margin-top: var(--space-sm);
+}
+
+.company {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.location {
+  color: var(--muted);
+}
+
+.jobDesc {
+  color: var(--ink-dim);
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: var(--space-md) 0 0;
+  max-width: 72ch;
+
+  strong,
+  b {
+    color: var(--ink);
+    font-weight: 600;
+  }
+}
+
+.jobTags {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 0.75rem;
+  margin-top: var(--space-md);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--ink-dim);
+}
+
+.tagLabel {
+  opacity: 0.6;
+}
+
+.tagValue {
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.pagination {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border-faint);
+}
+
+.pageBtn {
+  padding: 6px 14px;
+  background: var(--surface);
+  color: var(--ink-dim);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border: 1px solid var(--border-faint);
+  border-radius: var(--radius-sm);
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
+
+  &:hover:not(.pageBtnActive):not(:disabled) {
+    background: var(--surface-raised);
+    border-color: var(--border);
+    color: var(--ink);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+.pageBtnActive {
+  background: var(--primary);
+  color: oklch(1 0 none);
+  border-color: var(--primary);
+  font-weight: 600;
+
+  &:hover {
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
+  }
+}
+
+@media (max-width: 640px) {
+  .filters {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+  }
+
+  .checkboxBar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+
+  .searchBtn {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .jobHeader {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+}
