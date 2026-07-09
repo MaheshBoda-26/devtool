@@ -2,7 +2,12 @@
 
 A dual-purpose React utility app — fetch GitHub repositories by username and search Adzuna job listings across 19 countries. Dark mode by default, built with Vite + React.
 
+# Example for GitHub Repo Retriever
+
 <img width="3380" height="2722" alt="Screenshot from GoFullPage July 9 2026 (1)" src="https://github.com/user-attachments/assets/c0f8efd5-71c6-474c-93a7-cb31c84cbea7" />
+
+# Example for Job Search
+
 <img width="3380" height="2722" alt="Screenshot from GoFullPage July 9 2026 (1)" src="https://github.com/user-attachments/assets/afe8f35e-2889-4279-8c37-40540a6dc18a" />
 
 
