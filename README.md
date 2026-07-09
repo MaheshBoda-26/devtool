@@ -8,7 +8,7 @@ A dual-purpose React utility app — fetch GitHub repositories by username and s
 
 # Example for Job Search
 
-<img width="3380" height="2722" alt="Screenshot from GoFullPage July 9 2026 (1)" src="https://github.com/user-attachments/assets/afe8f35e-2889-4279-8c37-40540a6dc18a" />
+<img width="977" height="901" alt="Screenshot 2026-07-09 at 11 58 43 AM" src="https://github.com/user-attachments/assets/c3ce0ef4-7942-4289-a003-682bfeb2b45c" />
 
 
 
