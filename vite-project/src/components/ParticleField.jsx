@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import styles from "./ParticleField.module.css";
 
 const PARTICLE_COUNT = 60;
-const ORB_COUNT = 3;
 
 export default function ParticleField() {
   const canvasRef = useRef(null);
@@ -210,11 +209,11 @@ export default function ParticleField() {
     function drawStatic() {
       const { width, height } = dimensionsRef.current;
       ctx.clearRect(0, 0, width, height);
-      orbsRef.current.forEach((orb) => drawOrb(ctx, orb, width, height));
+      orbsRef.current.forEach((orb) => drawOrb(ctx, orb));
       particlesRef.current.forEach((p) => drawParticle(ctx, p));
     }
 
-    function drawOrb(ctx, orb, width, height) {
+    function drawOrb(ctx, orb) {
       const gradient = ctx.createRadialGradient(
         orb.x, orb.y, 0,
         orb.x, orb.y, orb.radius

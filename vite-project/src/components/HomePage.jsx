@@ -6,21 +6,25 @@ const VALUE_PROPS = [
     icon: "speed",
     title: "Speed First",
     description: "Sub-100ms interactions. No bloat. Every byte earns its keep.",
+    accent: "var(--primary)",
   },
   {
     icon: "focus",
     title: "Zero Friction",
     description: "No auth walls. No signup. Type username or keyword → get results.",
+    accent: "var(--accent)",
   },
   {
     icon: "precision",
     title: "Precise Results",
     description: "GitHub API v3 + Adzuna v1. Real data, real-time, no mocking.",
+    accent: "var(--success)",
   },
   {
     icon: "dark",
     title: "Dark Native",
     description: "OKLCH color system. Reduced motion respected. Accessible by default.",
+    accent: "var(--warning)",
   },
 ];
 
@@ -35,6 +39,15 @@ const QUICK_START = [
 export default function HomePage({ onNavigate }) {
   const [visible, setVisible] = useState({});
   const refs = useRef({});
+  const [parallaxOffset, setParallaxOffset] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setParallaxOffset(window.scrollY * 0.15);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -55,6 +68,11 @@ export default function HomePage({ onNavigate }) {
   return (
     <div className={styles.page}>
       <header className={styles.header} id="home-hero" ref={(el) => (refs.current.hero = el)}>
+        <div
+          className={styles.parallaxLayer}
+          style={{ transform: `translateY(${parallaxOffset}px)` }}
+          aria-hidden="true"
+        />
         <div className={styles.heroContent}>
           <div className={`${styles.badge} ${visible.hero ? styles.visible : ""}`} style={{ animationDelay: "0ms" }}>
             <span className={styles.badgeDot} />
@@ -97,6 +115,11 @@ export default function HomePage({ onNavigate }) {
             </a>
           </div>
         </div>
+        <div className={styles.scrollIndicator} aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 5v14M19 12H5"/>
+          </svg>
+        </div>
       </header>
 
       <section className={styles.valueProps} id="value-props" ref={(el) => (refs.current.valueProps = el)}>
@@ -109,7 +132,7 @@ export default function HomePage({ onNavigate }) {
               <article
                 key={prop.title}
                 className={`${styles.valueCard} ${visible["value-props"] ? styles.visible : ""}`}
-                style={{ animationDelay: `${i * 120}ms` }}
+                style={{ animationDelay: `${i * 120}ms`, "--card-accent": prop.accent }}
               >
                 <div className={styles.valueIcon}>
                   {prop.icon === "speed" && (

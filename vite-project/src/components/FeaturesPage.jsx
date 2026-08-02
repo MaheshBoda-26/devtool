@@ -89,6 +89,7 @@ export default function FeaturesPage({ onNavigate }) {
   const [visible, setVisible] = useState({});
   const refs = useRef({});
   const [expandedCategories, setExpandedCategories] = useState({});
+  const [activeTool, setActiveTool] = useState("github");
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -109,6 +110,9 @@ export default function FeaturesPage({ onNavigate }) {
   function toggleCategory(categoryKey) {
     setExpandedCategories((prev) => ({ ...prev, [categoryKey]: !prev[categoryKey] }));
   }
+
+  const features = activeTool === "github" ? GITHUB_FEATURES : JOB_FEATURES;
+  const toolIcon = activeTool === "github" ? ICONS.github : ICONS.briefcase;
 
   function renderFeatureSection(title, icon, features, sectionKey) {
     const isExpanded = expandedCategories[sectionKey];
@@ -180,11 +184,21 @@ export default function FeaturesPage({ onNavigate }) {
           </p>
 
           <div className={`${styles.toolTabs} ${visible.hero ? styles.visible : ""}`} style={{ animationDelay: "400ms" }} role="tablist">
-            <button role="tab" className={`${styles.toolTab} ${styles.active}`} aria-selected="true">
+            <button
+              role="tab"
+              aria-selected={activeTool === "github"}
+              className={`${styles.toolTab} ${activeTool === "github" ? styles.active : ""}`}
+              onClick={() => setActiveTool("github")}
+            >
               {ICONS.github}
               <span>GitHub Repos</span>
             </button>
-            <button role="tab" className={styles.toolTab} aria-selected="false">
+            <button
+              role="tab"
+              aria-selected={activeTool === "jobs"}
+              className={`${styles.toolTab} ${activeTool === "jobs" ? styles.active : ""}`}
+              onClick={() => setActiveTool("jobs")}
+            >
               {ICONS.briefcase}
               <span>Job Search</span>
             </button>
@@ -192,8 +206,11 @@ export default function FeaturesPage({ onNavigate }) {
         </div>
       </header>
 
-      {renderFeatureSection("GitHub Repo Retriever", ICONS.github, GITHUB_FEATURES, "github-features")}
-      {renderFeatureSection("Job Search (Adzuna)", ICONS.briefcase, JOB_FEATURES, "job-features")}
+      {activeTool === "github" ? (
+        renderFeatureSection("GitHub Repo Retriever", ICONS.github, GITHUB_FEATURES, "github-features")
+      ) : (
+        renderFeatureSection("Job Search (Adzuna)", ICONS.briefcase, JOB_FEATURES, "job-features")
+      )}
 
       <footer className={styles.pageFooter}>
         <div className={styles.sectionWrapper}>
