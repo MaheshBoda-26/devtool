@@ -86,6 +86,9 @@ describe('GitHubRepos', () => {
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalled()
     })
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Fetch repositories' })).toBeInTheDocument()
+    })
 
     const input = screen.getByPlaceholderText('github username')
     const button = screen.getByRole('button', { name: 'Fetch repositories' })
@@ -109,9 +112,12 @@ describe('GitHubRepos', () => {
 
     render(<GitHubRepos />)
 
-    // Wait for initial fetch to complete
+    // Wait for initial fetch to complete and loading to finish
     await waitFor(() => {
       expect(global.fetch).toHaveBeenCalled()
+    })
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Fetch repositories' })).toBeInTheDocument()
     })
 
     global.fetch.mockResolvedValueOnce({

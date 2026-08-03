@@ -2,10 +2,14 @@
   max-width: 960px;
   margin: 0 auto;
   padding: var(--space-2xl) var(--space-lg) var(--space-3xl);
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
   margin-bottom: var(--space-2xl);
+  flex-shrink: 0;
 }
 
 .title {
@@ -19,9 +23,40 @@
 
 .tabs {
   display: flex;
-  gap: 0;
+  align-items: center;
+  gap: var(--space-sm);
   border-bottom: 1px solid var(--border);
   margin-bottom: var(--space-xl);
+  flex-shrink: 0;
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--ink-dim);
+  background: transparent;
+  border: 1px solid transparent;
+  padding: var(--space-sm) var(--space-md);
+  min-height: 44px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-smooth);
+  flex-shrink: 0;
+}
+
+.backButton:hover {
+  color: var(--ink);
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.backButton:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 3px;
 }
 
 .tab {
@@ -68,6 +103,7 @@
 
 .panel {
   animation: panelEnter var(--duration-normal) var(--ease-out);
+  flex: 1;
 }
 
 @keyframes panelEnter {
@@ -93,5 +129,13 @@
   .tab {
     padding: 10px 14px;
     font-size: 0.875rem;
+  }
+
+  .backButton span {
+    display: none;
+  }
+
+  .backButton {
+    padding: var(--space-sm);
   }
 }

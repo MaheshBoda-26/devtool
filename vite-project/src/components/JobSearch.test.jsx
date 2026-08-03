@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 // Mock the adzuna service at module level
@@ -140,18 +140,23 @@ describe('JobSearch', () => {
     searchJobs.mockResolvedValue({ results: mockJobs, count: 42 })
     render(<JobSearch />)
 
-    console.log('DEBUG: waiting for result count...')
     await waitFor(() => {
-      console.log('DEBUG: checking for result count...')
       expect(screen.getByText('42 jobs found')).toBeInTheDocument()
     }, { timeout: 15000 })
 
-    console.log('DEBUG: waiting for pagination...')
     await waitFor(() => {
-      console.log('DEBUG: checking for pagination...')
-      expect(screen.getByRole('button', { name: 'Prev' })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: 'Next' })).toBeInTheDocument()
-      expect(screen.getByRole('button', { name: '2' })).toBeInTheDocument()
+      expect(screen.getByText('Job 0')).toBeInTheDocument()
+    }, { timeout: 15000 })
+
+    await waitFor(() => {
+      const pagination = screen.getByRole('navigation', { name: 'Pagination' })
+      expect(pagination).toBeInTheDocument()
+    }, { timeout: 15000 })
+
+    await waitFor(() => {
+      expect(screen.getByText('Prev')).toBeInTheDocument()
+      expect(screen.getByText('Next')).toBeInTheDocument()
+      expect(screen.getByText('2')).toBeInTheDocument()
     }, { timeout: 15000 })
   })
 
@@ -182,15 +187,24 @@ describe('JobSearch', () => {
 
   it('navigates pages', async () => {
     isAdzunaConfigured.mockReturnValue(true)
-    searchJobs.mockResolvedValue({ results: [], count: 42 })
+    const mockJobs = Array.from({ length: 25 }, (_, i) => ({
+      id: String(i),
+      title: `Job ${i}`,
+      redirect_url: `https://adzuna.com/${i}`,
+      company: { display_name: 'Co' },
+      location: { display_name: 'Loc' },
+      created: '2024-01-01',
+    }))
+
+    searchJobs.mockResolvedValue({ results: mockJobs, count: 42 })
 
     render(<JobSearch />)
 
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: '2' })).toBeInTheDocument()
+      expect(screen.getByText('2')).toBeInTheDocument()
     }, { timeout: 15000 })
 
-    await userEvent.click(screen.getByRole('button', { name: '2' }))
+    await userEvent.click(screen.getByText('2'))
 
     await waitFor(() => {
       expect(searchJobs).toHaveBeenCalledWith(

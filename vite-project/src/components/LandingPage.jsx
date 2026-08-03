@@ -31,9 +31,9 @@ function ErrorBoundary({ children, fallback }) {
 }
 
 // Code-split heavy pages
-const HomePage = lazy(() => import("./HomePage"));
-const FeaturesPage = lazy(() => import("./FeaturesPage"));
-const AboutPage = lazy(() => import("./AboutPage"));
+const HomePage = lazy(() => import("./HomePage").then(m => ({ default: m.HomePage })));
+const FeaturesPage = lazy(() => import("./FeaturesPage").then(m => ({ default: m.FeaturesPage })));
+const AboutPage = lazy(() => import("./AboutPage").then(m => ({ default: m.AboutPage })));
 
 const PAGES = [
   { key: "home", label: "Home", icon: "home" },
@@ -120,7 +120,7 @@ export function LandingPage({ onEnter }) {
       setActivePage(pageKey);
       setPageTransition(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
-    }, 180);
+    }, 200);
   }, [currentIndex, onEnter, pageKeys]);
 
   const handleKeyDown = useCallback((e) => {

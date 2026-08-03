@@ -2,10 +2,9 @@ import { COUNTRY_OPTIONS } from "../services/adzuna";
 import styles from "./JobFilters.module.css";
 
 const SORT_OPTIONS = [
-  { value: "", label: "Relevance" },
+  { value: "relevance", label: "Relevance" },
   { value: "date", label: "Date" },
   { value: "salary", label: "Salary" },
-  { value: "relevance", label: "Relevance" },
 ];
 
 export function JobFilters({ filters, onChange, onSubmit, className }) {

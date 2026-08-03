@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { JobFilters } from '../components/JobFilters'
 
 describe('JobFilters', () => {
@@ -49,12 +49,12 @@ describe('JobFilters', () => {
     expect(countrySelect).toHaveValue('gb')
   })
 
-  it('populates sort select with 4 options', () => {
+  it('populates sort select with 3 options', () => {
     render(<JobFilters filters={defaultFilters} onChange={mockOnChange} onSubmit={mockOnSubmit} />)
 
     const sortSelect = screen.getByLabelText('Sort by')
     expect(sortSelect).toBeInTheDocument()
-    expect(sortSelect.options).toHaveLength(4)
+    expect(sortSelect.options).toHaveLength(3)
   })
 
   it('calls onChange when keyword input changes', () => {

@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { useEffect, useState } from "react";
 import styles from "./LandingPages.module.css";
 
 const GITHUB_FEATURES = [
@@ -63,8 +64,8 @@ const JOB_FEATURES = [
 
 const ICONS = {
   github: (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
     </svg>
   ),
   briefcase: (
@@ -85,148 +86,313 @@ const ICONS = {
   ),
 };
 
+// Motion variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
+const heroVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
+const expandVariants = {
+  collapsed: { height: 0, opacity: 0 },
+  expanded: {
+    height: "auto",
+    opacity: 1,
+    transition: {
+      duration: 0.4,
+      ease: [0.16, 1, 0.3, 1],
+      staggerChildren: 0.06,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
+const featureItemVariants = {
+  hidden: { opacity: 0, x: -10 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      duration: 0.3,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
 export function FeaturesPage({ onNavigate }) {
-  const [visible, setVisible] = useState({});
-  const refs = useRef({});
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState({});
   const [activeTool, setActiveTool] = useState("github");
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
-      Object.keys(refs.current).forEach((key) => {
-        setVisible((prev) => ({ ...prev, [key]: true }));
-      });
-      document.querySelectorAll('.animate-on-scroll').forEach(el => el.classList.add('visible'));
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisible((prev) => ({ ...prev, [entry.target.id]: true }));
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
-    );
-
-    const animateObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            animateObserver.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
-    );
-
-    Object.values(refs.current).forEach((ref) => ref && observer.observe(ref));
-    document.querySelectorAll('.animate-on-scroll').forEach(el => animateObserver.observe(el));
-
-    return () => {
-      observer.disconnect();
-      animateObserver.disconnect();
-    };
+    if (typeof window === 'undefined') return;
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mediaQuery.matches);
+    const handler = (e) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
   function toggleCategory(categoryKey) {
     setExpandedCategories((prev) => ({ ...prev, [categoryKey]: !prev[categoryKey] }));
   }
 
+  const initialVariants = prefersReducedMotion ? false : "hidden";
+
   function renderFeatureSection(title, icon, features, sectionKey) {
     const isExpanded = expandedCategories[sectionKey];
+    const featuresData = features;
 
     return (
-      <section key={sectionKey} id={sectionKey} ref={(el) => (refs.current[sectionKey] = el)} className={styles.featureSection}>
-        <div className={styles.sectionWrapper}>
-          <button
-            className={`${styles.categoryHeader} ${visible[sectionKey] ? styles.visible : ""}`}
+      <motion.section
+        key={sectionKey}
+        id={sectionKey}
+        className={styles.featureSection}
+        initial={initialVariants}
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+        variants={containerVariants}
+      >
+        <motion.div className={styles.sectionWrapper} initial="hidden" animate="visible" variants={containerVariants}>
+          <motion.button
+            className={styles.categoryHeader}
             onClick={() => toggleCategory(sectionKey)}
-            style={{ animationDelay: "0ms" }}
             aria-expanded={isExpanded}
+            whileHover={{ boxShadow: "var(--shadow-md)", borderColor: "var(--primary-border)" }}
+            whileTap={{ scale: 0.99 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            initial="hidden"
+            animate="visible"
+            variants={itemVariants}
           >
-            <div className={styles.categoryIcon}>{icon}</div>
-            <div className={styles.categoryInfo}>
-              <h2 className={styles.categoryTitle}>{title}</h2>
-              <p className={styles.categoryCount}>{features.reduce((sum, c) => sum + c.items.length, 0)} features</p>
-            </div>
-            <svg
-              className={`${styles.expandIcon} ${isExpanded ? styles.expanded : ""}`}
-              width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"
+            <motion.div
+              className={styles.categoryIcon}
+              whileHover={{ scale: 1.05, rotate: 2, boxShadow: "var(--shadow-glow)" }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
             >
-              <polyline points="6 9 12 15 18 9"/>
-            </svg>
-          </button>
+              {icon}
+            </motion.div>
+            <motion.div className={styles.categoryInfo} initial="hidden" animate="visible" variants={itemVariants}>
+              <motion.h2 className={styles.categoryTitle} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
+                {title}
+              </motion.h2>
+              <motion.p className={styles.categoryCount} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
+                {featuresData.reduce((sum, c) => sum + c.items.length, 0)} features
+              </motion.p>
+            </motion.div>
+            <motion.svg
+              className={`${styles.expandIcon} ${isExpanded ? styles.expanded : ""}`}
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              animate={{ rotate: isExpanded ? 180 : 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </motion.svg>
+          </motion.button>
 
-          <div
-            className={`${styles.categoryContent} ${isExpanded ? styles.expanded : ""}`}
-            style={{ maxHeight: isExpanded ? "2000px" : "0" }}
-            aria-hidden={!isExpanded}
-          >
-            {features.map((category, catIdx) => (
-              <article key={category.category} className={`${styles.featureCard} ${visible[sectionKey] ? styles.visible : ""}`} style={{ animationDelay: `${catIdx * 80}ms` }}>
-                <h3 className={styles.featureCategoryTitle}>{category.category}</h3>
-                <dl className={styles.featureList}>
-                  {category.items.map((item, _itemIdx) => (
-                    <div key={item.name} className={styles.featureItem}>
-                      <dt className={styles.featureName}>{item.name}</dt>
-                      <dd className={styles.featureDesc}>{item.desc}</dd>
-                      <dd className={styles.featureDetail}>{item.detail}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+          <AnimatePresence>
+            {isExpanded && (
+              <motion.div
+                className={styles.categoryContent}
+                initial="collapsed"
+                animate="expanded"
+                exit="collapsed"
+                variants={expandVariants}
+                style={{ overflow: "hidden" }}
+              >
+                {featuresData.map((category, _catIdx) => (
+                  <motion.article
+                    key={category.category}
+                    className={styles.featureCard}
+                    initial="hidden"
+                    animate="visible"
+                    variants={cardVariants}
+                    whileHover={{ y: -2, boxShadow: "var(--shadow-md)", borderColor: "var(--primary-border)" }}
+                  >
+                    <motion.h3
+                      className={styles.featureCategoryTitle}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 }}
+                    >
+                      {category.category}
+                    </motion.h3>
+                    <motion.dl className={styles.featureList} initial="hidden" animate="visible" variants={containerVariants}>
+                      {category.items.map((item, _itemIdx) => (
+                        <motion.div
+                          key={item.name}
+                          className={styles.featureItem}
+                          initial="hidden"
+                          animate="visible"
+                          variants={featureItemVariants}
+                          whileHover={{ x: 4, borderColor: "var(--primary-border)", background: "var(--surface-raised)" }}
+                        >
+                          <motion.dt
+                            className={styles.featureName}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                          >
+                            {item.name}
+                          </motion.dt>
+                          <motion.dd
+                            className={styles.featureDesc}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.05 }}
+                          >
+                            {item.desc}
+                          </motion.dd>
+                          <motion.dd
+                            className={styles.featureDetail}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.1 }}
+                          >
+                            {item.detail}
+                          </motion.dd>
+                        </motion.div>
+                      ))}
+                    </motion.dl>
+                  </motion.article>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      </motion.section>
     );
   }
 
   return (
     <div className={styles.page} data-slot="features-page">
-      <header className={`${styles.pageHeader} animate-on-scroll`} id="features-hero" ref={(el) => (refs.current.hero = el)}>
-        <div className={styles.heroContent}>
-          <div className={`${styles.badge} ${visible.hero ? styles.visible : ""}`} style={{ animationDelay: "0ms" }}>
+      <header className={styles.pageHeader} id="features-hero">
+        <motion.div
+          className={styles.heroContent}
+          initial={initialVariants}
+          animate="visible"
+          variants={containerVariants}
+          role="banner"
+        >
+          <motion.div
+            className={styles.badge}
+            initial="hidden"
+            animate="visible"
+            variants={heroVariants}
+            style={{ transitionDelay: "0ms" }}
+          >
             <span className={styles.badgeDot} />
             Features
-          </div>
+          </motion.div>
 
-          <h1 className={`${styles.headline} ${visible.hero ? styles.visible : ""}`} style={{ animationDelay: "100ms" }}>
+          <motion.h1
+            className={styles.headline}
+            initial="hidden"
+            animate="visible"
+            variants={heroVariants}
+            style={{ transitionDelay: "100ms" }}
+          >
             <span className={styles.word}>Everything</span>
             <span className={styles.word}>DevTool</span>
             <span className={styles.word}>does.</span>
-          </h1>
+          </motion.h1>
 
-          <p className={`${styles.subhead} ${visible.hero ? styles.visible : ""}`} style={{ animationDelay: "250ms" }}>
+          <motion.p
+            className={styles.subhead}
+            initial="hidden"
+            animate="visible"
+            variants={heroVariants}
+            style={{ transitionDelay: "250ms" }}
+          >
             Two powerful tools in one interface. Each feature is designed for speed, clarity, and zero friction.
-          </p>
+          </motion.p>
 
-          <div className={`${styles.toolTabs} ${visible.hero ? styles.visible : ""}`} style={{ animationDelay: "400ms" }} role="tablist" aria-label="Tool selection">
-            <button
+          <motion.div
+            className={styles.toolTabs}
+            initial="hidden"
+            animate="visible"
+            variants={heroVariants}
+            style={{ transitionDelay: "400ms" }}
+            role="tablist"
+            aria-label="Tool selection"
+          >
+            <motion.button
               role="tab"
               aria-selected={activeTool === "github"}
               className={`${styles.toolTab} ${activeTool === "github" ? styles.active : ""}`}
               onClick={() => setActiveTool("github")}
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.98 }}
+              whileFocus={{ boxShadow: "0 0 0 3px var(--primary-muted)" }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              layout
             >
               {ICONS.github}
               <span>GitHub Repos</span>
-            </button>
-            <button
+            </motion.button>
+            <motion.button
               role="tab"
               aria-selected={activeTool === "jobs"}
               className={`${styles.toolTab} ${activeTool === "jobs" ? styles.active : ""}`}
               onClick={() => setActiveTool("jobs")}
+              whileHover={{ scale: 1.02, y: -1 }}
+              whileTap={{ scale: 0.98 }}
+              whileFocus={{ boxShadow: "0 0 0 3px var(--primary-muted)" }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              layout
             >
               {ICONS.briefcase}
               <span>Job Search</span>
-            </button>
-          </div>
-        </div>
+            </motion.button>
+          </motion.div>
+        </motion.div>
       </header>
 
       {activeTool === "github" ? (
@@ -235,22 +401,72 @@ export function FeaturesPage({ onNavigate }) {
         renderFeatureSection("Job Search (Adzuna)", ICONS.briefcase, JOB_FEATURES, "job-features")
       )}
 
-      <footer className={`${styles.pageFooter} animate-on-scroll`}>
-        <div className={styles.sectionWrapper}>
-          <button className={`${styles.cta} ${styles.ctaSecondary}`} onClick={() => onNavigate("home")}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
+      <motion.footer
+        className={styles.pageFooter}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        variants={containerVariants}
+      >
+        <motion.div className={styles.sectionWrapper} initial="hidden" animate="visible" variants={containerVariants}>
+          <motion.button
+            className={`${styles.cta} ${styles.ctaSecondary}`}
+            onClick={() => onNavigate("home")}
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            initial="hidden"
+            animate="visible"
+            variants={itemVariants}
+          >
+            <motion.svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              initial={{ x: -5 }}
+              animate={{ x: 0 }}
+              transition={{ type: "spring" }}
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </motion.svg>
             <span>Back to Home</span>
-          </button>
-          <button className={`${styles.cta} ${styles.ctaPrimary}`} onClick={() => onNavigate("about")}>
+          </motion.button>
+          <motion.button
+            className={`${styles.cta} ${styles.ctaPrimary}`}
+            onClick={() => onNavigate("about")}
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            initial="hidden"
+            animate="visible"
+            variants={itemVariants}
+          >
             <span>Technical Details</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </button>
-        </div>
-      </footer>
+            <motion.svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              initial={{ x: 5 }}
+              animate={{ x: 0 }}
+              transition={{ type: "spring" }}
+            >
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </motion.svg>
+          </motion.button>
+        </motion.div>
+      </motion.footer>
     </div>
   );
 }

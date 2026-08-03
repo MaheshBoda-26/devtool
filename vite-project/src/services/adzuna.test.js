@@ -71,7 +71,7 @@ describe('adzuna service', () => {
       })
 
       const { searchJobs } = await import('../services/adzuna')
-      const result = await searchJobs({ country: 'gb', what: 'developer' })
+      const _result = await searchJobs({ country: 'gb', what: 'developer' })
 
       expect(global.fetch).toHaveBeenCalled()
       const callUrl = global.fetch.mock.calls[0][0]

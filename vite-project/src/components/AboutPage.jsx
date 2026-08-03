@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 import styles from "./LandingPages.module.css";
 
 const TECH_STACK = [
@@ -129,168 +130,443 @@ const DESIGN_DECISIONS = [
   { title: "Vite over CRA/Next.js", rationale: "DevTool is a client-only SPA. No SSR, no routing, no server components needed. Vite is faster, simpler, smaller." },
 ];
 
+// Motion variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
+const heroVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
+const stepVariants = {
+  hidden: { opacity: 0, x: -30 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      duration: 0.5,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
+const decisionVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.98 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.5,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
+const techItemVariants = {
+  hidden: { opacity: 0, x: -10 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      duration: 0.3,
+      ease: [0.16, 1, 0.3, 1],
+    },
+  },
+};
+
 export function AboutPage({ onNavigate, className }) {
-  const [visible, setVisible] = useState({});
-  const refs = useRef({});
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) {
-      Object.keys(refs.current).forEach((key) => {
-        setVisible((prev) => ({ ...prev, [key]: true }));
-      });
-      document.querySelectorAll('.animate-on-scroll').forEach(el => el.classList.add('visible'));
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisible((prev) => ({ ...prev, [entry.target.id]: true }));
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
-    );
-
-    const animateObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-            animateObserver.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
-    );
-
-    Object.values(refs.current).forEach((ref) => ref && observer.observe(ref));
-    document.querySelectorAll('.animate-on-scroll').forEach(el => animateObserver.observe(el));
-
-    return () => {
-      observer.disconnect();
-      animateObserver.disconnect();
-    };
+    if (typeof window === 'undefined') return;
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mediaQuery.matches);
+    const handler = (e) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
   }, []);
+
+  const initialVariants = prefersReducedMotion ? false : "hidden";
 
   return (
     <div data-slot="about-page" className={`${styles.page} ${className || ""}`}>
       <a href="#main-content" className={styles.skipLink}>Skip to main content</a>
-      <header className={`${styles.pageHeader} animate-on-scroll`} id="about-hero" ref={(el) => (refs.current.hero = el)}>
-        <div className={styles.heroContent}>
-          <div className={`${styles.badge} ${visible.hero ? styles.visible : ""} ${styles.stagger1}`}>
+      <header className={styles.pageHeader} id="about-hero">
+        <motion.div
+          className={styles.heroContent}
+          initial={initialVariants}
+          animate="visible"
+          variants={containerVariants}
+          role="banner"
+        >
+          <motion.div
+            className={styles.badge}
+            initial="hidden"
+            animate="visible"
+            variants={heroVariants}
+            style={{ transitionDelay: "0ms" }}
+          >
             <span className={styles.badgeDot} />
             Technical Deep Dive
-          </div>
+          </motion.div>
 
-          <h1 className={`${styles.headline} ${visible.hero ? styles.visible : ""} ${styles.stagger2}`}>
-            <span className={styles.word}>How</span>
-            <span className={styles.word}>DevTool</span>
-            <span className={styles.word}>is</span>
-            <span className={styles.word}>built.</span>
-          </h1>
+          <motion.h1
+            className={styles.headline}
+            initial="hidden"
+            animate="visible"
+            variants={heroVariants}
+            style={{ transitionDelay: "100ms" }}
+          >
+            <motion.span className={styles.word} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+              How
+            </motion.span>
+            <motion.span className={styles.word} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }}>
+              DevTool
+            </motion.span>
+            <motion.span className={styles.word} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}>
+              is
+            </motion.span>
+            <motion.span className={styles.word} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }}>
+              built.
+            </motion.span>
+          </motion.h1>
 
-          <p className={`${styles.subhead} ${visible.hero ? styles.visible : ""} ${styles.stagger3}`}>
+          <motion.p
+            className={styles.subhead}
+            initial="hidden"
+            animate="visible"
+            variants={heroVariants}
+            style={{ transitionDelay: "250ms" }}
+          >
             Architecture, stack, design decisions, and build process. No fluff — just the technical details.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
       </header>
 
       <main id="main-content">
-        <section className={`${styles.techStackSection} animate-on-scroll`} id="tech-stack" ref={(el) => (refs.current.techStack = el)}>
-          <div className={styles.sectionWrapper}>
-            <h2 className={`${styles.sectionTitle} ${visible["tech-stack"] ? styles.visible : ""}`}>
+        <motion.section
+          className={styles.techStackSection}
+          id="tech-stack"
+          initial={initialVariants}
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.15 }}
+          variants={containerVariants}
+        >
+          <motion.div className={styles.sectionWrapper} initial="hidden" animate="visible" variants={containerVariants}>
+            <motion.h2
+              className={`${styles.sectionTitle} ${styles.sectionTitleGradient}`}
+              initial="hidden"
+              animate="visible"
+              variants={itemVariants}
+            >
               Technology Stack
-            </h2>
+            </motion.h2>
             {TECH_STACK.map((category, catIdx) => (
-              <article key={category.category} className={`${styles.categoryCard} ${visible["tech-stack"] ? styles.visible : ""} ${styles[`stagger${catIdx + 1}`]}`}>
-                <h3 className={styles.categoryTitle}>{category.category}</h3>
-                <dl className={styles.techList}>
+              <motion.article
+                key={category.category}
+                className={styles.categoryCard}
+                initial="hidden"
+                animate="visible"
+                variants={cardVariants}
+                whileHover={{ y: -4, boxShadow: "var(--shadow-lg), var(--shadow-glow)" }}
+                style={{ transitionDelay: `${catIdx * 100}ms` }}
+              >
+                <motion.h3
+                  className={styles.categoryTitle}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  {category.category}
+                </motion.h3>
+                <motion.dl className={styles.techList} initial="hidden" animate="visible" variants={containerVariants}>
                   {category.items.map((item, _itemIdx) => (
-                    <div key={item.name} className={styles.techItem}>
+                    <motion.div
+                      key={item.name}
+                      className={styles.techItem}
+                      initial="hidden"
+                      animate="visible"
+                      variants={techItemVariants}
+                      whileHover={{ x: 4, borderColor: "var(--primary-border)", transform: "translateX(4px)" }}
+                    >
                       <dt className={styles.techName}>
-                        <a href={item.link} target="_blank" rel="noreferrer" className={styles.techLink}>
+                        <motion.a
+                          href={item.link}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={styles.techLink}
+                          whileHover={{ color: "var(--primary)" }}
+                          whileTap={{ scale: 0.98 }}
+                        >
                           {item.name}
-                        </a>
+                        </motion.a>
                         <span className={styles.techVersion}>{item.version}</span>
                       </dt>
-                      <dd className={styles.techDesc}>{item.desc}</dd>
-                    </div>
+                      <motion.dd
+                        className={styles.techDesc}
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.05 }}
+                      >
+                        {item.desc}
+                      </motion.dd>
+                    </motion.div>
                   ))}
-                </dl>
-              </article>
+                </motion.dl>
+              </motion.article>
             ))}
-          </div>
-        </section>
+          </motion.div>
+        </motion.section>
 
-        <section className={`${styles.architectureSection} animate-on-scroll`} id="architecture" ref={(el) => (refs.current.architecture = el)}>
-          <div className={styles.sectionWrapper}>
-            <h2 className={`${styles.sectionTitle} ${visible.architecture ? styles.visible : ""}`}>
+        <motion.section
+          className={styles.architectureSection}
+          id="architecture"
+          initial={initialVariants}
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.15 }}
+          variants={containerVariants}
+        >
+          <motion.div className={styles.sectionWrapper} initial="hidden" animate="visible" variants={containerVariants}>
+            <motion.h2
+              className={`${styles.sectionTitle} ${styles.sectionTitleGradient}`}
+              initial="hidden"
+              animate="visible"
+              variants={itemVariants}
+            >
               Architecture
-            </h2>
+            </motion.h2>
             {ARCHITECTURE.map((section, idx) => (
-              <article key={section.title} className={`${styles.archCard} ${visible.architecture ? styles.visible : ""} ${styles[`stagger${idx + 1}`]}`}>
-                <h3 className={styles.archTitle}>{section.title}</h3>
-                <p className={styles.archDesc}>{section.description}</p>
-                <ul className={styles.archDetails}>
+              <motion.article
+                key={section.title}
+                className={styles.archCard}
+                initial="hidden"
+                animate="visible"
+                variants={cardVariants}
+                whileHover={{ y: -4, boxShadow: "var(--shadow-lg), var(--shadow-glow)" }}
+                style={{ transitionDelay: `${idx * 100}ms` }}
+              >
+                <motion.h3
+                  className={styles.archTitle}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  {section.title}
+                </motion.h3>
+                <motion.p
+                  className={styles.archDesc}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15 }}
+                >
+                  {section.description}
+                </motion.p>
+                <motion.ul className={styles.archDetails} initial="hidden" animate="visible" variants={containerVariants}>
                   {section.details.map((detail, dIdx) => (
-                    <li key={dIdx} className={styles.archDetail}>{detail}</li>
+                    <motion.li
+                      key={dIdx}
+                      className={styles.archDetail}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 + dIdx * 0.05 }}
+                    >
+                      {detail}
+                    </motion.li>
                   ))}
-                </ul>
-              </article>
+                </motion.ul>
+              </motion.article>
             ))}
-          </div>
-        </section>
+          </motion.div>
+        </motion.section>
 
-        <section className={`${styles.buildSection} animate-on-scroll`} id="build-process" ref={(el) => (refs.current.build = el)}>
-          <div className={styles.sectionWrapper}>
-            <h2 className={`${styles.sectionTitle} ${visible["build-process"] ? styles.visible : ""}`}>
+        <motion.section
+          className={styles.buildSection}
+          id="build-process"
+          initial={initialVariants}
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.15 }}
+          variants={containerVariants}
+        >
+          <motion.div className={styles.sectionWrapper} initial="hidden" animate="visible" variants={containerVariants}>
+            <motion.h2
+              className={`${styles.sectionTitle} ${styles.sectionTitleGradient}`}
+              initial="hidden"
+              animate="visible"
+              variants={itemVariants}
+            >
               Build & Deploy Process
-            </h2>
-            <ol className={styles.buildSteps}>
-              {BUILD_PROCESS.map((step, idx) => (
-                <li key={step.step} className={`${styles.buildStep} ${visible["build-process"] ? styles.visible : ""} ${styles[`stagger${idx + 1}`]}`}>
-                  <div className={styles.stepNumber}>{step.step}</div>
+            </motion.h2>
+            <motion.ol className={styles.buildSteps} initial="hidden" animate="visible" variants={containerVariants}>
+              {BUILD_PROCESS.map((step, _idx) => (
+                <motion.li
+                  key={step.step}
+                  className={styles.buildStep}
+                  initial="hidden"
+                  animate="visible"
+                  variants={stepVariants}
+                  whileHover={{ x: 4, boxShadow: "var(--shadow-md)", borderColor: "var(--primary-border)" }}
+                >
+                  <motion.div
+                    className={styles.stepNumber}
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 15 }}
+                    whileHover={{ scale: 1.1, boxShadow: "var(--shadow-glow)" }}
+                  >
+                    {step.step}
+                  </motion.div>
                   <div className={styles.stepContent}>
-                    <div className={styles.stepHeader}>
-                      <h3 className={styles.stepTitle}>{step.title}</h3>
-                      <code className={styles.stepCommand}>{step.command}</code>
-                    </div>
-                    <p className={styles.stepDesc}>{step.description}</p>
+                    <motion.div className={styles.stepHeader} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
+                      <motion.h3 className={styles.stepTitle}>{step.title}</motion.h3>
+                      <motion.code className={styles.stepCommand} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.25 }}>
+                        {step.command}
+                      </motion.code>
+                    </motion.div>
+                    <motion.p
+                      className={styles.stepDesc}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      {step.description}
+                    </motion.p>
                   </div>
-                </li>
+                </motion.li>
               ))}
-            </ol>
-          </div>
-        </section>
+            </motion.ol>
+          </motion.div>
+        </motion.section>
 
-        <section className={`${styles.decisionsSection} animate-on-scroll`} id="design-decisions" ref={(el) => (refs.current.decisions = el)}>
-          <div className={styles.sectionWrapper}>
-            <h2 className={`${styles.sectionTitle} ${visible["design-decisions"] ? styles.visible : ""}`}>
+        <motion.section
+          className={styles.decisionsSection}
+          id="design-decisions"
+          initial={initialVariants}
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.15 }}
+          variants={containerVariants}
+        >
+          <motion.div className={styles.sectionWrapper} initial="hidden" animate="visible" variants={containerVariants}>
+            <motion.h2
+              className={`${styles.sectionTitle} ${styles.sectionTitleGradient}`}
+              initial="hidden"
+              animate="visible"
+              variants={itemVariants}
+            >
               Key Design Decisions
-            </h2>
-            <div className={styles.decisionsGrid}>
-              {DESIGN_DECISIONS.map((decision, idx) => (
-                <article key={decision.title} className={`${styles.decisionCard} ${visible["design-decisions"] ? styles.visible : ""} ${styles[`stagger${idx + 1}`]}`}>
-                  <h3 className={styles.decisionTitle}>{decision.title}</h3>
-                  <p className={styles.decisionRationale}>{decision.rationale}</p>
-                </article>
+            </motion.h2>
+            <motion.div className={styles.decisionsGrid} initial="hidden" animate="visible" variants={containerVariants}>
+              {DESIGN_DECISIONS.map((decision, _idx) => (
+                <motion.article
+                  key={decision.title}
+                  className={styles.decisionCard}
+                  initial="hidden"
+                  animate="visible"
+                  variants={decisionVariants}
+                  whileHover={{ y: -4, boxShadow: "var(--shadow-lg), var(--shadow-glow)" }}
+                >
+                  <motion.h3
+                    className={styles.decisionTitle}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 }}
+                  >
+                    {decision.title}
+                  </motion.h3>
+                  <motion.p
+                    className={styles.decisionRationale}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 }}
+                  >
+                    {decision.rationale}
+                  </motion.p>
+                </motion.article>
               ))}
-            </div>
-          </div>
-        </section>
+            </motion.div>
+          </motion.div>
+        </motion.section>
 
-        <section className={`${styles.projectInfoSection} animate-on-scroll`} id="project-info" ref={(el) => (refs.current.info = el)}>
-          <div className={styles.sectionWrapper}>
-            <h2 className={`${styles.sectionTitle} ${visible["project-info"] ? styles.visible : ""}`}>
+        <motion.section
+          className={styles.projectInfoSection}
+          id="project-info"
+          initial={initialVariants}
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.15 }}
+          variants={containerVariants}
+        >
+          <motion.div className={styles.sectionWrapper} initial="hidden" animate="visible" variants={containerVariants}>
+            <motion.h2
+              className={`${styles.sectionTitle} ${styles.sectionTitleGradient}`}
+              initial="hidden"
+              animate="visible"
+              variants={itemVariants}
+            >
               Project Information
-            </h2>
-            <div className={styles.infoGrid}>
-              <article className={`${styles.infoCard} ${visible["project-info"] ? styles.visible : ""} ${styles.stagger1}`}>
-                <h3 className={styles.infoTitle}>Repository Structure</h3>
-                <pre className={styles.codeBlock}>{`vite-project/
+            </motion.h2>
+            <motion.div className={styles.infoGrid} initial="hidden" animate="visible" variants={containerVariants}>
+              <motion.article
+                className={styles.infoCard}
+                initial="hidden"
+                animate="visible"
+                variants={cardVariants}
+                whileHover={{ y: -4, boxShadow: "var(--shadow-lg), var(--shadow-glow)" }}
+              >
+                <motion.h3
+                  className={styles.infoTitle}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  Repository Structure
+                </motion.h3>
+                <motion.pre
+                  className={styles.codeBlock}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  {`vite-project/
 ├── public/
 │   ├── favicon.svg
 │   └── icons.svg
@@ -319,43 +595,129 @@ export function AboutPage({ onNavigate, className }) {
 ├── package.json
 ├── vite.config.js
 ├── README.md
-└── PRODUCT.md`}</pre>
-              </article>
-              <article className={`${styles.infoCard} ${visible["project-info"] ? styles.visible : ""} ${styles.stagger2}`}>
-                <h3 className={styles.infoTitle}>Environment Variables</h3>
-                <pre className={styles.codeBlock}>{`# .env (create from .env.example)
+└── PRODUCT.md`}
+                </motion.pre>
+              </motion.article>
+              <motion.article
+                className={styles.infoCard}
+                initial="hidden"
+                animate="visible"
+                variants={cardVariants}
+                whileHover={{ y: -4, boxShadow: "var(--shadow-lg), var(--shadow-glow)" }}
+              >
+                <motion.h3
+                  className={styles.infoTitle}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  Environment Variables
+                </motion.h3>
+                <motion.pre
+                  className={styles.codeBlock}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  {`# .env (create from .env.example)
 VITE_ADZUNA_APP_ID=your_app_id
 VITE_ADZUNA_APP_KEY=your_api_key
 
 # Get credentials at https://developer.adzuna.com
-# GitHub tab works without any API keys`}</pre>
-                <h3 className={styles.infoTitle} style={{ marginTop: "var(--space-xl)" }}>Scripts</h3>
-                <pre className={styles.codeBlock}>{`npm run dev      # Start dev server (HMR)
+# GitHub tab works without any API keys`}
+                </motion.pre>
+                <motion.h3
+                  className={styles.infoTitle}
+                  style={{ marginTop: "var(--space-xl)" }}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  Scripts
+                </motion.h3>
+                <motion.pre
+                  className={styles.codeBlock}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.35 }}
+                >
+                  {`npm run dev      # Start dev server (HMR)
 npm run build    # Production build to dist/
 npm run lint     # Run oxlint
-npm run preview  # Preview production build`}</pre>
-              </article>
-            </div>
-          </div>
-        </section>
+npm run preview  # Preview production build`}
+                </motion.pre>
+              </motion.article>
+            </motion.div>
+          </motion.div>
+        </motion.section>
       </main>
 
-      <footer className={`${styles.pageFooter} animate-on-scroll`}>
-        <div className={styles.sectionWrapper}>
-          <button className={`${styles.cta} ${styles.ctaSecondary}`} onClick={() => onNavigate("features")} aria-label="Navigate back to Features page">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
+      <motion.footer
+        className={styles.pageFooter}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        variants={containerVariants}
+      >
+        <motion.div className={styles.sectionWrapper} initial="hidden" animate="visible" variants={containerVariants}>
+          <motion.button
+            className={`${styles.cta} ${styles.ctaSecondary}`}
+            onClick={() => onNavigate("features")}
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            initial="hidden"
+            animate="visible"
+            variants={itemVariants}
+          >
+            <motion.svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              initial={{ x: -5 }}
+              animate={{ x: 0 }}
+              transition={{ type: "spring" }}
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </motion.svg>
             <span>Back to Features</span>
-          </button>
-          <button className={`${styles.cta} ${styles.ctaPrimary}`} onClick={() => onNavigate("home")} aria-label="Navigate to Home page">
+          </motion.button>
+          <motion.button
+            className={`${styles.cta} ${styles.ctaPrimary}`}
+            onClick={() => onNavigate("home")}
+            whileHover={{ scale: 1.02, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            initial="hidden"
+            animate="visible"
+            variants={itemVariants}
+          >
             <span>Home</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
-          </button>
-        </div>
-      </footer>
+            <motion.svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              initial={{ x: 5 }}
+              animate={{ x: 0 }}
+              transition={{ type: "spring" }}
+            >
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </motion.svg>
+          </motion.button>
+        </motion.div>
+      </motion.footer>
     </div>
   );
 }

@@ -1,11 +1,11 @@
 import { useState, Suspense, lazy } from "react";
 import styles from "./App.module.css";
 
-const LandingPage = lazy(() => import("./components/LandingPage"));
-const GitHubRepos = lazy(() => import("./components/GitHubRepos"));
-const JobSearch = lazy(() => import("./components/JobSearch"));
-const FeaturesPage = lazy(() => import("./components/FeaturesPage"));
-const AboutPage = lazy(() => import("./components/AboutPage"));
+const LandingPage = lazy(() => import("./components/LandingPage").then(m => ({ default: m.LandingPage })));
+const GitHubRepos = lazy(() => import("./components/GitHubRepos").then(m => ({ default: m.GitHubRepos })));
+const JobSearch = lazy(() => import("./components/JobSearch").then(m => ({ default: m.JobSearch })));
+const _FeaturesPage = lazy(() => import("./components/FeaturesPage").then(m => ({ default: m.FeaturesPage })));
+const _AboutPage = lazy(() => import("./components/AboutPage").then(m => ({ default: m.AboutPage })));
 
 const TABS = [
   { key: "github", label: "GitHub Repos" },
@@ -32,6 +32,10 @@ export function App() {
     setShowLanding(false);
   }
 
+  function handleBackToLanding() {
+    setShowLanding(true);
+  }
+
   if (showLanding) {
     return (
       <Suspense fallback={<LoadingFallback />}>
@@ -53,6 +57,16 @@ export function App() {
       </header>
 
       <nav className={styles.tabs} role="tablist" aria-label="Main navigation">
+        <button
+          className={styles.backButton}
+          onClick={handleBackToLanding}
+          aria-label="Back to landing page"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          <span>Back</span>
+        </button>
         {TABS.map((tab) => {
           const active = activeTab === tab.key;
           return (

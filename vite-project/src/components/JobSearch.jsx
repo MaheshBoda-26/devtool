@@ -15,7 +15,7 @@ const DEFAULT_FILTERS = {
   contract: false,
   minSalary: "",
   maxSalary: "",
-  sortBy: "",
+  sortBy: "relevance",
 };
 
 export function JobSearch() {
