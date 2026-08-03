@@ -129,17 +129,32 @@
   background: var(--primary);
   color: var(--bg);
   border-color: var(--primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.ctaPrimary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary) 100%);
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-smooth);
 }
 
 .ctaPrimary:hover {
   background: var(--primary-hover);
   border-color: var(--primary-hover);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   box-shadow: var(--shadow-lg), var(--shadow-glow);
 }
 
+.ctaPrimary:hover::before {
+  opacity: 1;
+}
+
 .ctaPrimary:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.98);
   box-shadow: var(--shadow-sm);
 }
 
@@ -147,17 +162,32 @@
   background: transparent;
   color: var(--ink);
   border-color: var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.ctaSecondary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--primary-muted);
+  opacity: 0;
+  transition: opacity var(--duration-normal) var(--ease-smooth);
 }
 
 .ctaSecondary:hover {
   background: var(--surface-raised);
   border-color: var(--primary);
   color: var(--primary);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+}
+
+.ctaSecondary:hover::before {
+  opacity: 1;
 }
 
 .ctaSecondary:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.98);
 }
 
 .ctaGhost {
@@ -283,6 +313,23 @@
 .valueCard {
   padding: var(--space-xl);
   text-align: center;
+  border-radius: var(--radius-xl);
+  background: var(--surface-glass);
+  backdrop-filter: saturate(180%) blur(24px);
+  border: 1px solid var(--border);
+  transition: all var(--duration-normal) var(--ease-smooth);
+}
+
+.valueCard:hover {
+  border-color: var(--primary-border);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  transform: translateY(-6px);
+}
+
+.valueCard:hover .valueIcon {
+  transform: scale(1.12) rotate(4deg);
+  box-shadow: var(--shadow-glow-strong);
+  border-color: var(--primary);
 }
 
 .valueIcon {
@@ -297,11 +344,6 @@
   color: var(--primary);
   margin-bottom: var(--space-md);
   transition: all var(--duration-normal) var(--ease-spring);
-}
-
-.valueCard:hover .valueIcon {
-  transform: scale(1.1) rotate(3deg);
-  box-shadow: var(--shadow-glow);
 }
 
 .valueTitle {
@@ -332,6 +374,13 @@
   border-radius: var(--radius-xl);
   overflow: hidden;
   box-shadow: var(--shadow-xl);
+  transition: all var(--duration-normal) var(--ease-smooth);
+}
+
+.terminal:hover {
+  border-color: var(--primary-border);
+  box-shadow: var(--shadow-xl), var(--shadow-glow-strong);
+  transform: translateY(-4px);
 }
 
 .terminalHeader {
@@ -457,18 +506,25 @@
   border-radius: var(--radius-xl);
   cursor: pointer;
   text-align: left;
-  transition: all var(--duration-fast) var(--ease-smooth);
+  transition: all var(--duration-normal) var(--ease-spring);
 }
 
 .categoryHeader:hover {
   border-color: var(--primary-border);
   background: var(--surface-raised);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  transform: translateY(-2px);
 }
 
 .categoryHeader:focus-visible {
   outline: 3px solid var(--primary);
   outline-offset: 3px;
+}
+
+.categoryHeader:hover .categoryIcon {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: var(--shadow-glow-strong);
+  border-color: var(--primary);
 }
 
 .categoryIcon {
@@ -483,11 +539,6 @@
   color: var(--primary);
   flex-shrink: 0;
   transition: all var(--duration-normal) var(--ease-spring);
-}
-
-.categoryHeader:hover .categoryIcon {
-  transform: scale(1.05) rotate(2deg);
-  box-shadow: var(--shadow-glow);
 }
 
 .categoryInfo {
@@ -534,8 +585,8 @@
 
 .featureCard:hover {
   border-color: var(--primary-border);
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  transform: translateY(-4px);
 }
 
 .featureCategoryTitle {
@@ -559,12 +610,33 @@
   backdrop-filter: saturate(180%) blur(16px);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  transition: all var(--duration-fast) var(--ease-smooth);
+  transition: all var(--duration-normal) var(--ease-smooth);
+  position: relative;
+  overflow: hidden;
+}
+
+.featureItem::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--primary);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform var(--duration-normal) var(--ease-spring);
 }
 
 .featureItem:hover {
   border-color: var(--primary-border);
   background: var(--surface-raised);
+  transform: translateX(6px);
+}
+
+.featureItem:hover::before {
+  transform: scaleY(1);
+  transform-origin: top;
 }
 
 .featureName {
@@ -628,12 +700,32 @@
   backdrop-filter: saturate(180%) blur(16px);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  transition: all var(--duration-fast) var(--ease-smooth);
+  transition: all var(--duration-normal) var(--ease-spring);
+  position: relative;
+  overflow: hidden;
+}
+
+.techItem::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--primary);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform var(--duration-normal) var(--ease-spring);
 }
 
 .techItem:hover {
   border-color: var(--primary-border);
-  transform: translateX(4px);
+  transform: translateX(6px);
+}
+
+.techItem:hover::before {
+  transform: scaleY(1);
+  transform-origin: top;
 }
 
 .techName {
@@ -680,6 +772,17 @@
 .archCard {
   padding: var(--space-xl);
   margin-bottom: var(--space-lg);
+  border-radius: var(--radius-xl);
+  background: var(--surface-glass);
+  backdrop-filter: saturate(180%) blur(24px);
+  border: 1px solid var(--border);
+  transition: all var(--duration-normal) var(--ease-smooth);
+}
+
+.archCard:hover {
+  border-color: var(--primary-border);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  transform: translateY(-6px);
 }
 
 .archCard:last-child {
@@ -745,8 +848,8 @@
 
 .buildStep:hover {
   border-color: var(--primary-border);
-  box-shadow: var(--shadow-md);
-  transform: translateX(4px);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  transform: translateX(8px);
 }
 
 .stepNumber {
@@ -763,6 +866,12 @@
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-glow);
+  transition: all var(--duration-normal) var(--ease-spring);
+}
+
+.buildStep:hover .stepNumber {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: var(--shadow-glow-strong);
 }
 
 .stepContent {
@@ -813,11 +922,17 @@
 
 .decisionCard {
   padding: var(--space-xl);
+  border-radius: var(--radius-xl);
+  background: var(--surface-glass);
+  backdrop-filter: saturate(180%) blur(24px);
+  border: 1px solid var(--border);
   transition: all var(--duration-normal) var(--ease-smooth);
 }
 
 .decisionCard:hover {
-  transform: translateY(-4px);
+  border-color: var(--primary-border);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  transform: translateY(-6px);
 }
 
 .decisionTitle {
@@ -848,11 +963,17 @@
 
 .infoCard {
   padding: var(--space-xl);
+  border-radius: var(--radius-xl);
+  background: var(--surface-glass);
+  backdrop-filter: saturate(180%) blur(24px);
+  border: 1px solid var(--border);
   transition: all var(--duration-normal) var(--ease-smooth);
 }
 
 .infoCard:hover {
-  transform: translateY(-4px);
+  border-color: var(--primary-border);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+  transform: translateY(-6px);
 }
 
 .infoTitle {
@@ -971,6 +1092,7 @@
 .navBrand:hover {
   color: var(--primary);
   background: var(--primary-muted);
+  transform: translateY(-1px);
 }
 
 .navBrand:focus-visible {
@@ -1006,6 +1128,7 @@
   color: var(--ink);
   background: var(--surface);
   border-color: var(--border);
+  transform: translateY(-1px);
 }
 
 .navLink:focus-visible {
@@ -1019,6 +1142,11 @@
   border-color: var(--primary-border);
 }
 
+.navLinkActive:hover {
+  background: var(--primary-border);
+  transform: translateY(-1px);
+}
+
 .navActions {
   display: flex;
   gap: var(--space-sm);
@@ -1027,6 +1155,12 @@
 .navCta {
   padding: var(--space-sm) var(--space-lg);
   font-size: 0.8125rem;
+  transition: all var(--duration-fast) var(--ease-spring);
+}
+
+.navCta:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .navCta:focus-visible {
@@ -1047,6 +1181,70 @@
   opacity: 0;
   transform: translateY(10px);
   pointer-events: none;
+}
+
+/* Page enter/exit animations for smooth text transitions */
+.pageEnter {
+  animation: pageEnter 0.5s var(--ease-smooth) forwards;
+}
+
+.pageExit {
+  animation: pageExit 0.4s var(--ease-in) forwards;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pageExit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.98);
+  }
+}
+
+/* Staggered text reveal animations */
+.stagger-reveal > * {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: staggerReveal 0.6s var(--ease-smooth) forwards;
+}
+
+.stagger-reveal > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-reveal > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-reveal > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-reveal > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-reveal > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-reveal > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger-reveal > *:nth-child(7) { animation-delay: 0.35s; }
+.stagger-reveal > *:nth-child(8) { animation-delay: 0.4s; }
+
+@keyframes staggerReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .pageEnter, .pageExit,
+  .stagger-reveal > * {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 @media (max-width: 640px) {

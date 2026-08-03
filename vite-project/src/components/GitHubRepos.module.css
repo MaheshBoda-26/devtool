@@ -121,14 +121,34 @@
   border: 1px solid var(--border-faint);
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
-  transition:
-    border-color var(--duration-fast) var(--ease-out),
-    background var(--duration-fast) var(--ease-out);
+  transition: all var(--duration-normal) var(--ease-smooth);
+  position: relative;
+  overflow: hidden;
+}
 
-  &:hover {
-    border-color: var(--border);
-    background: var(--surface-raised);
-  }
+.card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--primary);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform var(--duration-normal) var(--ease-spring);
+}
+
+.card:hover {
+  border-color: var(--border);
+  background: var(--surface-raised);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+.card:hover::before {
+  transform: scaleY(1);
+  transform-origin: top;
 }
 
 .cardHeader {
@@ -143,12 +163,28 @@
   font-size: 1.0625rem;
   color: var(--primary);
   text-decoration: none;
-  transition: color var(--duration-fast) var(--ease-out);
+  transition: all var(--duration-fast) var(--ease-smooth);
+  position: relative;
+}
 
-  &:hover {
-    color: var(--primary-hover);
-    text-decoration: underline;
-  }
+.repoLink::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--primary);
+  transition: width var(--duration-normal) var(--ease-spring);
+}
+
+.repoLink:hover {
+  color: var(--primary-hover);
+  text-decoration: none;
+}
+
+.repoLink:hover::after {
+  width: 100%;
 }
 
 .stars {
@@ -156,6 +192,15 @@
   font-size: 0.8125rem;
   font-weight: 600;
   white-space: nowrap;
+  transition: all var(--duration-fast) var(--ease-spring);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.card:hover .stars {
+  transform: scale(1.1);
+  color: var(--primary);
 }
 
 .description {
@@ -185,15 +230,30 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
+  transition: all var(--duration-fast) var(--ease-smooth);
+}
+
+.metaItem:hover {
+  transform: translateY(-1px);
 }
 
 .metaLabel {
   opacity: 0.6;
+  transition: opacity var(--duration-fast) var(--ease-smooth);
+}
+
+.metaItem:hover .metaLabel {
+  opacity: 1;
 }
 
 .metaValue {
   color: var(--ink-dim);
   font-weight: 500;
+  transition: color var(--duration-fast) var(--ease-smooth);
+}
+
+.metaItem:hover .metaValue {
+  color: var(--primary);
 }
 
 .languageTag {
@@ -207,6 +267,14 @@
   padding: 2px 8px;
   border-radius: var(--radius-pill);
   border: 1px solid var(--border-faint);
+  transition: all var(--duration-normal) var(--ease-spring);
+}
+
+.languageTag:hover {
+  border-color: var(--primary-border);
+  color: var(--primary);
+  background: var(--primary-muted);
+  transform: scale(1.05);
 }
 
 .languageDot {
@@ -214,6 +282,12 @@
   height: 8px;
   border-radius: 50%;
   background: var(--primary);
+  transition: all var(--duration-normal) var(--ease-spring);
+}
+
+.languageTag:hover .languageDot {
+  transform: scale(1.3);
+  box-shadow: var(--shadow-glow);
 }
 
 @media (max-width: 640px) {

@@ -181,14 +181,34 @@
   border: 1px solid var(--border-faint);
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
-  transition:
-    border-color var(--duration-fast) var(--ease-out),
-    background var(--duration-fast) var(--ease-out);
+  transition: all var(--duration-normal) var(--ease-smooth);
+  position: relative;
+  overflow: hidden;
+}
 
-  &:hover {
-    border-color: var(--border);
-    background: var(--surface-raised);
-  }
+.jobCard::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--success);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform var(--duration-normal) var(--ease-spring);
+}
+
+.jobCard:hover {
+  border-color: var(--border);
+  background: var(--surface-raised);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg), var(--shadow-glow);
+}
+
+.jobCard:hover::before {
+  transform: scaleY(1);
+  transform-origin: top;
 }
 
 .jobHeader {
@@ -203,12 +223,32 @@
   font-size: 1.0625rem;
   color: var(--primary);
   text-decoration: none;
-  transition: color var(--duration-fast) var(--ease-out);
+  transition: all var(--duration-fast) var(--ease-smooth);
+  position: relative;
+}
 
-  &:hover {
-    color: var(--primary-hover);
-    text-decoration: underline;
-  }
+.jobTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--primary);
+  transition: width var(--duration-normal) var(--ease-spring);
+}
+
+.jobTitle:hover {
+  color: var(--primary-hover);
+  text-decoration: none;
+}
+
+.jobTitle:hover::after {
+  width: 100%;
+}
+
+.jobCard:hover .jobTitle {
+  color: var(--primary);
 }
 
 .salary {
@@ -216,6 +256,15 @@
   font-size: 0.875rem;
   font-weight: 700;
   white-space: nowrap;
+  transition: all var(--duration-fast) var(--ease-spring);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.jobCard:hover .salary {
+  transform: scale(1.1);
+  color: var(--primary);
 }
 
 .jobMeta {
@@ -231,24 +280,20 @@
 .company {
   font-weight: 600;
   color: var(--ink);
+  transition: color var(--duration-fast) var(--ease-smooth);
+}
+
+.jobCard:hover .company {
+  color: var(--primary);
 }
 
 .location {
   color: var(--muted);
+  transition: color var(--duration-fast) var(--ease-smooth);
 }
 
-.jobDesc {
+.jobCard:hover .location {
   color: var(--ink-dim);
-  font-size: 0.875rem;
-  line-height: 1.5;
-  margin: var(--space-md) 0 0;
-  max-width: 72ch;
-
-  strong,
-  b {
-    color: var(--ink);
-    font-weight: 600;
-  }
 }
 
 .jobTags {
@@ -265,15 +310,37 @@
   align-items: center;
   gap: 4px;
   color: var(--ink-dim);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--bg);
+  border: 1px solid var(--border-faint);
+  transition: all var(--duration-normal) var(--ease-spring);
+}
+
+.tag:hover {
+  border-color: var(--primary-border);
+  color: var(--primary);
+  background: var(--primary-muted);
+  transform: scale(1.05);
 }
 
 .tagLabel {
   opacity: 0.6;
+  transition: opacity var(--duration-fast) var(--ease-smooth);
+}
+
+.tag:hover .tagLabel {
+  opacity: 1;
 }
 
 .tagValue {
   font-weight: 500;
   color: var(--muted);
+  transition: color var(--duration-fast) var(--ease-smooth);
+}
+
+.tag:hover .tagValue {
+  color: var(--primary);
 }
 
 .pagination {
@@ -294,15 +361,14 @@
   font-weight: 500;
   border: 1px solid var(--border-faint);
   border-radius: var(--radius-sm);
-  transition:
-    background var(--duration-fast) var(--ease-out),
-    color var(--duration-fast) var(--ease-out),
-    border-color var(--duration-fast) var(--ease-out);
+  transition: all var(--duration-normal) var(--ease-spring);
 
   &:hover:not(.pageBtnActive):not(:disabled) {
     background: var(--surface-raised);
-    border-color: var(--border);
-    color: var(--ink);
+    border-color: var(--primary-border);
+    color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
   }
 
   &:disabled {
@@ -316,10 +382,13 @@
   color: oklch(1 0 none);
   border-color: var(--primary);
   font-weight: 600;
+  box-shadow: var(--shadow-glow);
 
   &:hover {
     background: var(--primary-hover);
     border-color: var(--primary-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg), var(--shadow-glow-strong);
   }
 }
 
