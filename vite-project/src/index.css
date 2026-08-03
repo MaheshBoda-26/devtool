@@ -23,9 +23,7 @@ html {
   --primary-muted: oklch(0.55 0.10 168 / 0.15);
   --primary-border: oklch(0.55 0.10 168 / 0.35);
 
-  --accent: oklch(0.58 0.12 38);
-  --accent-muted: oklch(0.58 0.12 38 / 0.15);
-
+  /* Semantic colors only - for status/feedback, not decoration */
   --success: oklch(0.55 0.12 145);
   --success-muted: oklch(0.55 0.12 145 / 0.12);
   --warning: oklch(0.62 0.14 75);
@@ -33,6 +31,7 @@ html {
   --error: oklch(0.55 0.18 25);
   --error-muted: oklch(0.55 0.18 25 / 0.10);
 
+  /* Single radius personality: soft (8-12px) */
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
@@ -83,84 +82,76 @@ body {
   min-height: 100svh;
 }
 
-h1, h2, h3 {
-  font-family: var(--font-display);
+/* Skip link for keyboard users */
+.skipLink {
+  position: absolute;
+  top: -100%;
+  left: var(--space-lg);
+  z-index: 1000;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--primary);
+  color: var(--bg);
   font-weight: 600;
-  color: var(--ink);
-  text-wrap: balance;
-  margin: 0;
+  border-radius: var(--radius-md);
+  transition: top var(--duration-fast) var(--ease-out);
+}
+.skipLink:focus {
+  top: var(--space-lg);
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
-h1 {
-  font-size: 1.75rem;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
+/* Focus-visible for all interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[role="tab"]:focus-visible,
+[role="button"]:focus-visible,
+[role="link"]:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
 }
 
-h2 {
-  font-size: 1.25rem;
-  letter-spacing: -0.01em;
-  line-height: 1.25;
-}
-
-p {
-  margin: 0;
-  color: var(--ink-dim);
-  font-size: 0.9375rem;
-  line-height: 1.5;
-}
-
-a {
-  color: var(--primary);
-  text-decoration: none;
-  transition: color var(--duration-fast) var(--ease-out);
-
-  &:hover {
-    color: var(--primary-hover);
-  }
-}
-
-code {
-  font-family: var(--font-mono);
-  font-size: 0.8125rem;
-  background: var(--surface);
-  color: var(--primary);
-  padding: 2px 6px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-faint);
-}
-
+/* Unified form control height: 40px minimum */
 button {
   font-family: inherit;
   border: none;
   cursor: pointer;
+  min-height: 40px;
+  padding: 10px 16px;
   transition: all var(--duration-fast) var(--ease-out);
 }
 
-input, select {
+input,
+select {
   font-family: inherit;
   font-size: 0.875rem;
   color: var(--ink);
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
+  min-height: 40px;
   padding: 10px 12px;
   transition: border-color var(--duration-fast) var(--ease-out);
+}
 
-  &::placeholder {
-    color: var(--muted);
-    opacity: 1;
-  }
+input::placeholder,
+select::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
 
-  &:hover {
-    border-color: var(--border);
-  }
+input:hover,
+select:hover {
+  border-color: var(--border);
+}
 
-  &:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 2px var(--primary-muted);
-  }
+input:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-muted);
 }
 
 select {
@@ -172,17 +163,66 @@ select {
 }
 
 input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
+  min-height: 18px;
   accent-color: var(--primary);
   cursor: pointer;
   padding: 0;
   border-radius: var(--radius-sm);
+}
 
-  &:focus-visible {
-    outline: 2px solid var(--primary);
-    outline-offset: 2px;
-  }
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink);
+  text-wrap: balance;
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+h3 {
+  font-size: clamp(1.125rem, 2vw, 1.25rem);
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+p {
+  margin: 0;
+  color: var(--ink-dim);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-out);
+}
+
+a:hover {
+  color: var(--primary-hover);
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  background: var(--surface);
+  color: var(--primary);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-faint);
 }
 
 ul {
@@ -217,5 +257,43 @@ strong {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Loading animation for Suspense fallback */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: var(--space-xl);
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.loadingDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  animation: pulse 1.2s var(--ease-out) infinite;
+}
+
+.loadingDot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loadingDot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+  0%, 60%, 100% {
+    opacity: 0.2;
+    transform: scale(0.8);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1);
   }
 }

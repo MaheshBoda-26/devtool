@@ -129,7 +129,7 @@ const DESIGN_DECISIONS = [
   { title: "Vite over CRA/Next.js", rationale: "DevTool is a client-only SPA. No SSR, no routing, no server components needed. Vite is faster, simpler, smaller." },
 ];
 
-export default function AboutPage({ onNavigate }) {
+export function AboutPage({ onNavigate, className }) {
   const [visible, setVisible] = useState({});
   const refs = useRef({});
 
@@ -139,6 +139,7 @@ export default function AboutPage({ onNavigate }) {
       Object.keys(refs.current).forEach((key) => {
         setVisible((prev) => ({ ...prev, [key]: true }));
       });
+      document.querySelectorAll('.animate-on-scroll').forEach(el => el.classList.add('visible'));
       return;
     }
 
@@ -153,124 +154,143 @@ export default function AboutPage({ onNavigate }) {
       { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
     );
 
+    const animateObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            animateObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+    );
+
     Object.values(refs.current).forEach((ref) => ref && observer.observe(ref));
-    return () => observer.disconnect();
+    document.querySelectorAll('.animate-on-scroll').forEach(el => animateObserver.observe(el));
+
+    return () => {
+      observer.disconnect();
+      animateObserver.disconnect();
+    };
   }, []);
 
   return (
-    <div className={styles.page}>
+    <div data-slot="about-page" className={`${styles.page} ${className || ""}`}>
+      <a href="#main-content" className={styles.skipLink}>Skip to main content</a>
       <header className={`${styles.pageHeader} animate-on-scroll`} id="about-hero" ref={(el) => (refs.current.hero = el)}>
         <div className={styles.heroContent}>
-          <div className={`${styles.badge} ${visible.hero ? styles.visible : ""}`} style={{ animationDelay: "0ms" }}>
+          <div className={`${styles.badge} ${visible.hero ? styles.visible : ""} ${styles.stagger1}`}>
             <span className={styles.badgeDot} />
             Technical Deep Dive
           </div>
 
-          <h1 className={`${styles.headline} ${visible.hero ? styles.visible : ""}`} style={{ animationDelay: "100ms" }}>
+          <h1 className={`${styles.headline} ${visible.hero ? styles.visible : ""} ${styles.stagger2}`}>
             <span className={styles.word}>How</span>
             <span className={styles.word}>DevTool</span>
             <span className={styles.word}>is</span>
             <span className={styles.word}>built.</span>
           </h1>
 
-          <p className={`${styles.subhead} ${visible.hero ? styles.visible : ""}`} style={{ animationDelay: "250ms" }}>
+          <p className={`${styles.subhead} ${visible.hero ? styles.visible : ""} ${styles.stagger3}`}>
             Architecture, stack, design decisions, and build process. No fluff — just the technical details.
           </p>
         </div>
       </header>
 
-      <section className={`${styles.techStackSection} animate-on-scroll`} id="tech-stack" ref={(el) => (refs.current.techStack = el)}>
-        <div className={styles.sectionWrapper}>
-          <h2 className={`${styles.sectionTitle} ${visible["tech-stack"] ? styles.visible : ""}`}>
-            Technology Stack
-          </h2>
-          {TECH_STACK.map((category, catIdx) => (
-            <article key={category.category} className={`${styles.categoryCard} ${visible["tech-stack"] ? styles.visible : ""}`} style={{ animationDelay: `${catIdx * 100}ms` }}>
-              <h3 className={styles.categoryTitle}>{category.category}</h3>
-              <dl className={styles.techList}>
-                {category.items.map((item, _itemIdx) => (
-                  <div key={item.name} className={styles.techItem}>
-                    <dt className={styles.techName}>
-                      <a href={item.link} target="_blank" rel="noreferrer" className={styles.techLink}>
-                        {item.name}
-                      </a>
-                      <span className={styles.techVersion}>{item.version}</span>
-                    </dt>
-                    <dd className={styles.techDesc}>{item.desc}</dd>
-                  </div>
-                ))}
-              </dl>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className={`${styles.architectureSection} animate-on-scroll`} id="architecture" ref={(el) => (refs.current.architecture = el)}>
-        <div className={styles.sectionWrapper}>
-          <h2 className={`${styles.sectionTitle} ${visible.architecture ? styles.visible : ""}`}>
-            Architecture
-          </h2>
-          {ARCHITECTURE.map((section, idx) => (
-            <article key={section.title} className={`${styles.archCard} ${visible.architecture ? styles.visible : ""}`} style={{ animationDelay: `${idx * 100}ms` }}>
-              <h3 className={styles.archTitle}>{section.title}</h3>
-              <p className={styles.archDesc}>{section.description}</p>
-              <ul className={styles.archDetails}>
-                {section.details.map((detail, dIdx) => (
-                  <li key={dIdx} className={styles.archDetail}>{detail}</li>
-                ))}
-              </ul>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className={`${styles.buildSection} animate-on-scroll`} id="build-process" ref={(el) => (refs.current.build = el)}>
-        <div className={styles.sectionWrapper}>
-          <h2 className={`${styles.sectionTitle} ${visible["build-process"] ? styles.visible : ""}`}>
-            Build & Deploy Process
-          </h2>
-          <ol className={styles.buildSteps}>
-            {BUILD_PROCESS.map((step, idx) => (
-              <li key={step.step} className={`${styles.buildStep} ${visible["build-process"] ? styles.visible : ""}`} style={{ animationDelay: `${idx * 120}ms` }}>
-                <div className={styles.stepNumber}>{step.step}</div>
-                <div className={styles.stepContent}>
-                  <div className={styles.stepHeader}>
-                    <h3 className={styles.stepTitle}>{step.title}</h3>
-                    <code className={styles.stepCommand}>{step.command}</code>
-                  </div>
-                  <p className={styles.stepDesc}>{step.description}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      <section className={`${styles.decisionsSection} animate-on-scroll`} id="design-decisions" ref={(el) => (refs.current.decisions = el)}>
-        <div className={styles.sectionWrapper}>
-          <h2 className={`${styles.sectionTitle} ${visible["design-decisions"] ? styles.visible : ""}`}>
-            Key Design Decisions
-          </h2>
-          <div className={styles.decisionsGrid}>
-            {DESIGN_DECISIONS.map((decision, idx) => (
-              <article key={decision.title} className={`${styles.decisionCard} ${visible["design-decisions"] ? styles.visible : ""}`} style={{ animationDelay: `${idx * 80}ms` }}>
-                <h3 className={styles.decisionTitle}>{decision.title}</h3>
-                <p className={styles.decisionRationale}>{decision.rationale}</p>
+      <main id="main-content">
+        <section className={`${styles.techStackSection} animate-on-scroll`} id="tech-stack" ref={(el) => (refs.current.techStack = el)}>
+          <div className={styles.sectionWrapper}>
+            <h2 className={`${styles.sectionTitle} ${visible["tech-stack"] ? styles.visible : ""}`}>
+              Technology Stack
+            </h2>
+            {TECH_STACK.map((category, catIdx) => (
+              <article key={category.category} className={`${styles.categoryCard} ${visible["tech-stack"] ? styles.visible : ""} ${styles[`stagger${catIdx + 1}`]}`}>
+                <h3 className={styles.categoryTitle}>{category.category}</h3>
+                <dl className={styles.techList}>
+                  {category.items.map((item, _itemIdx) => (
+                    <div key={item.name} className={styles.techItem}>
+                      <dt className={styles.techName}>
+                        <a href={item.link} target="_blank" rel="noreferrer" className={styles.techLink}>
+                          {item.name}
+                        </a>
+                        <span className={styles.techVersion}>{item.version}</span>
+                      </dt>
+                      <dd className={styles.techDesc}>{item.desc}</dd>
+                    </div>
+                  ))}
+                </dl>
               </article>
             ))}
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className={`${styles.projectInfoSection} animate-on-scroll`} id="project-info" ref={(el) => (refs.current.info = el)}>
-        <div className={styles.sectionWrapper}>
-          <h2 className={`${styles.sectionTitle} ${visible["project-info"] ? styles.visible : ""}`}>
-            Project Information
-          </h2>
-          <div className={styles.infoGrid}>
-            <article className={`${styles.infoCard} ${visible["project-info"] ? styles.visible : ""}`} style={{ animationDelay: "0ms" }}>
-              <h3 className={styles.infoTitle}>Repository Structure</h3>
-              <pre className={styles.codeBlock}>{`vite-project/
+        <section className={`${styles.architectureSection} animate-on-scroll`} id="architecture" ref={(el) => (refs.current.architecture = el)}>
+          <div className={styles.sectionWrapper}>
+            <h2 className={`${styles.sectionTitle} ${visible.architecture ? styles.visible : ""}`}>
+              Architecture
+            </h2>
+            {ARCHITECTURE.map((section, idx) => (
+              <article key={section.title} className={`${styles.archCard} ${visible.architecture ? styles.visible : ""} ${styles[`stagger${idx + 1}`]}`}>
+                <h3 className={styles.archTitle}>{section.title}</h3>
+                <p className={styles.archDesc}>{section.description}</p>
+                <ul className={styles.archDetails}>
+                  {section.details.map((detail, dIdx) => (
+                    <li key={dIdx} className={styles.archDetail}>{detail}</li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className={`${styles.buildSection} animate-on-scroll`} id="build-process" ref={(el) => (refs.current.build = el)}>
+          <div className={styles.sectionWrapper}>
+            <h2 className={`${styles.sectionTitle} ${visible["build-process"] ? styles.visible : ""}`}>
+              Build & Deploy Process
+            </h2>
+            <ol className={styles.buildSteps}>
+              {BUILD_PROCESS.map((step, idx) => (
+                <li key={step.step} className={`${styles.buildStep} ${visible["build-process"] ? styles.visible : ""} ${styles[`stagger${idx + 1}`]}`}>
+                  <div className={styles.stepNumber}>{step.step}</div>
+                  <div className={styles.stepContent}>
+                    <div className={styles.stepHeader}>
+                      <h3 className={styles.stepTitle}>{step.title}</h3>
+                      <code className={styles.stepCommand}>{step.command}</code>
+                    </div>
+                    <p className={styles.stepDesc}>{step.description}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <section className={`${styles.decisionsSection} animate-on-scroll`} id="design-decisions" ref={(el) => (refs.current.decisions = el)}>
+          <div className={styles.sectionWrapper}>
+            <h2 className={`${styles.sectionTitle} ${visible["design-decisions"] ? styles.visible : ""}`}>
+              Key Design Decisions
+            </h2>
+            <div className={styles.decisionsGrid}>
+              {DESIGN_DECISIONS.map((decision, idx) => (
+                <article key={decision.title} className={`${styles.decisionCard} ${visible["design-decisions"] ? styles.visible : ""} ${styles[`stagger${idx + 1}`]}`}>
+                  <h3 className={styles.decisionTitle}>{decision.title}</h3>
+                  <p className={styles.decisionRationale}>{decision.rationale}</p>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className={`${styles.projectInfoSection} animate-on-scroll`} id="project-info" ref={(el) => (refs.current.info = el)}>
+          <div className={styles.sectionWrapper}>
+            <h2 className={`${styles.sectionTitle} ${visible["project-info"] ? styles.visible : ""}`}>
+              Project Information
+            </h2>
+            <div className={styles.infoGrid}>
+              <article className={`${styles.infoCard} ${visible["project-info"] ? styles.visible : ""} ${styles.stagger1}`}>
+                <h3 className={styles.infoTitle}>Repository Structure</h3>
+                <pre className={styles.codeBlock}>{`vite-project/
 ├── public/
 │   ├── favicon.svg
 │   └── icons.svg
@@ -300,36 +320,37 @@ export default function AboutPage({ onNavigate }) {
 ├── vite.config.js
 ├── README.md
 └── PRODUCT.md`}</pre>
-            </article>
-            <article className={`${styles.infoCard} ${visible["project-info"] ? styles.visible : ""}`} style={{ animationDelay: "100ms" }}>
-              <h3 className={styles.infoTitle}>Environment Variables</h3>
-              <pre className={styles.codeBlock}>{`# .env (create from .env.example)
+              </article>
+              <article className={`${styles.infoCard} ${visible["project-info"] ? styles.visible : ""} ${styles.stagger2}`}>
+                <h3 className={styles.infoTitle}>Environment Variables</h3>
+                <pre className={styles.codeBlock}>{`# .env (create from .env.example)
 VITE_ADZUNA_APP_ID=your_app_id
 VITE_ADZUNA_APP_KEY=your_api_key
 
 # Get credentials at https://developer.adzuna.com
 # GitHub tab works without any API keys`}</pre>
-              <h3 className={styles.infoTitle} style={{ marginTop: "var(--space-xl)" }}>Scripts</h3>
-              <pre className={styles.codeBlock}>{`npm run dev      # Start dev server (HMR)
+                <h3 className={styles.infoTitle} style={{ marginTop: "var(--space-xl)" }}>Scripts</h3>
+                <pre className={styles.codeBlock}>{`npm run dev      # Start dev server (HMR)
 npm run build    # Production build to dist/
 npm run lint     # Run oxlint
 npm run preview  # Preview production build`}</pre>
-            </article>
+              </article>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </main>
 
       <footer className={`${styles.pageFooter} animate-on-scroll`}>
         <div className={styles.sectionWrapper}>
-          <button className={`${styles.cta} ${styles.ctaSecondary}`} onClick={() => onNavigate("features")}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <button className={`${styles.cta} ${styles.ctaSecondary}`} onClick={() => onNavigate("features")} aria-label="Navigate back to Features page">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
             <span>Back to Features</span>
           </button>
-          <button className={`${styles.cta} ${styles.ctaPrimary}`} onClick={() => onNavigate("home")}>
+          <button className={`${styles.cta} ${styles.ctaPrimary}`} onClick={() => onNavigate("home")} aria-label="Navigate to Home page">
             <span>Home</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M5 12h14M12 5l7 7-7 7"/>
             </svg>
           </button>

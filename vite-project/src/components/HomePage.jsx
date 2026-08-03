@@ -12,19 +12,19 @@ const VALUE_PROPS = [
     icon: "focus",
     title: "Zero Friction",
     description: "No auth walls. No signup. Type username or keyword → get results.",
-    accent: "var(--accent)",
+    accent: "var(--primary)",
   },
   {
     icon: "precision",
     title: "Precise Results",
     description: "GitHub API v3 + Adzuna v1. Real data, real-time, no mocking.",
-    accent: "var(--success)",
+    accent: "var(--primary)",
   },
   {
     icon: "dark",
     title: "Dark Native",
     description: "OKLCH color system. Reduced motion respected. Accessible by default.",
-    accent: "var(--warning)",
+    accent: "var(--primary)",
   },
 ];
 
@@ -36,7 +36,7 @@ const QUICK_START = [
   { cmd: "npm run dev", desc: "Start dev server" },
 ];
 
-export default function HomePage({ onNavigate }) {
+export function HomePage({ onNavigate }) {
   const [visible, setVisible] = useState({});
   const refs = useRef({});
   const [parallaxOffset, setParallaxOffset] = useState(0);
@@ -48,10 +48,10 @@ export default function HomePage({ onNavigate }) {
       Object.keys(refs.current).forEach((key) => {
         setVisible((prev) => ({ ...prev, [key]: true }));
       });
+      document.querySelectorAll('.animate-on-scroll').forEach(el => el.classList.add('visible'));
       return;
     }
 
-    // Smooth parallax with requestAnimationFrame
     let lastScrollY = window.scrollY;
     let ticking = false;
 
@@ -81,12 +81,29 @@ export default function HomePage({ onNavigate }) {
       { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
     );
 
+    const animateObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            animateObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -50px 0px" }
+    );
+
     Object.values(refs.current).forEach((ref) => ref && observer.observe(ref));
-    return () => observer.disconnect();
+    document.querySelectorAll('.animate-on-scroll').forEach(el => animateObserver.observe(el));
+
+    return () => {
+      observer.disconnect();
+      animateObserver.disconnect();
+    };
   }, []);
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} data-slot="home-page">
       <header className={styles.header} id="home-hero" ref={(el) => (refs.current.hero = el)}>
         <div
           className={styles.parallaxLayer}
@@ -115,13 +132,13 @@ export default function HomePage({ onNavigate }) {
 
           <div className={`${styles.heroActions} ${visible.hero ? styles.visible : ""} animate-on-scroll`} style={{ animationDelay: "400ms" }}>
             <button className={`${styles.cta} ${styles.ctaPrimary}`} onClick={() => onNavigate("features")}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M12 5v14M19 12H5"/>
               </svg>
               <span>Explore Features</span>
             </button>
             <button className={`${styles.cta} ${styles.ctaSecondary}`} onClick={() => onNavigate("about")}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="10"/>
                 <path d="M12 16v-4M12 8h.01"/>
               </svg>
@@ -152,7 +169,7 @@ export default function HomePage({ onNavigate }) {
               <article
                 key={prop.title}
                 className={`${styles.valueCard} ${visible["value-props"] ? styles.visible : ""}`}
-                style={{ animationDelay: `${i * 120}ms`, "--card-accent": prop.accent }}
+                style={{ animationDelay: `${i * 120}ms` }}
               >
                 <div className={styles.valueIcon}>
                   {prop.icon === "speed" && (
@@ -221,7 +238,7 @@ export default function HomePage({ onNavigate }) {
             <p className={styles.ctaDesc}>Launch DevTool and fetch your first repo or job listing in seconds.</p>
             <div className={styles.ctaButtons}>
               <button className={`${styles.cta} ${styles.ctaPrimary}`} onClick={() => onNavigate("features")}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                   <path d="M5 12h14M12 5l7 7-7 7"/>
                 </svg>
                 <span>Start Exploring</span>

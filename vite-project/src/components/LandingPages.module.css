@@ -6,6 +6,24 @@
   overflow-x: hidden;
 }
 
+.skipLink {
+  position: absolute;
+  top: -100%;
+  left: var(--space-lg);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--primary);
+  color: var(--bg);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  z-index: 1000;
+  transition: top var(--duration-fast) var(--ease-out);
+}
+
+.skipLink:focus {
+  top: var(--space-lg);
+  outline: none;
+}
+
 /* ===== Shared Header / Hero ===== */
 .pageHeader {
   flex: 1;
@@ -1102,12 +1120,12 @@ html {
 }
 
 /* Staggered animation delays */
-.stagger-1 { transition-delay: 100ms; }
-.stagger-2 { transition-delay: 200ms; }
-.stagger-3 { transition-delay: 300ms; }
-.stagger-4 { transition-delay: 400ms; }
-.stagger-5 { transition-delay: 500ms; }
-.stagger-6 { transition-delay: 600ms; }
+.stagger1 { transition-delay: 100ms; }
+.stagger2 { transition-delay: 200ms; }
+.stagger3 { transition-delay: 300ms; }
+.stagger4 { transition-delay: 400ms; }
+.stagger5 { transition-delay: 500ms; }
+.stagger6 { transition-delay: 600ms; }
 
 .navInner {
   max-width: 1200px;
@@ -1160,8 +1178,9 @@ html {
   color: var(--ink-dim);
   background: transparent;
   border: 1px solid transparent;
-  padding: var(--space-xs) var(--space-md);
-  border-radius: var(--radius-pill);
+  padding: var(--space-sm) var(--space-md);
+  min-height: 44px;
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--duration-fast) var(--ease-out);
 }

@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
-import { searchJobs, isAdzunaConfigured } from "../services/adzuna";
-import JobFilters from "./JobFilters";
-import JobCard from "./JobCard";
+import { useEffect, useRef, useState } from "react";
+import { isAdzunaConfigured, searchJobs } from "../services/adzuna";
+import { JobFilters } from "./JobFilters";
+import { MemoizedJobCard as JobCard } from "./JobCard";
 import styles from "./JobSearch.module.css";
 
 const DEFAULT_FILTERS = {
@@ -18,16 +18,19 @@ const DEFAULT_FILTERS = {
   sortBy: "",
 };
 
-export default function JobSearch() {
+export function JobSearch() {
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [jobs, setJobs] = useState([]);
   const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  const configured = isAdzunaConfigured();
+  const mountedRef = useRef(true);
 
   async function fetchJobs(opts) {
+    if (!isAdzunaConfigured()) {
+      setError("Adzuna API is not configured. Set VITE_ADZUNA_APP_ID and VITE_ADZUNA_APP_KEY in your .env file.");
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
@@ -44,16 +47,28 @@ export default function JobSearch() {
         minSalary: opts.minSalary || undefined,
         sortBy: opts.sortBy || undefined,
       });
-      setJobs(data.results);
-      setCount(data.count);
+      if (mountedRef.current) {
+        setJobs(data.results);
+        setCount(data.count);
+      }
     } catch (e) {
-      setJobs([]);
-      setCount(0);
-      setError(e?.message ?? "Failed to fetch jobs");
+      if (mountedRef.current) {
+        setJobs([]);
+        setCount(0);
+        setError(e?.message ?? "Failed to fetch jobs");
+      }
     } finally {
-      setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
     }
   }
+
+  useEffect(() => {
+    mountedRef.current = true;
+    fetchJobs(DEFAULT_FILTERS);
+    return () => { mountedRef.current = false; };
+  }, []);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -67,70 +82,52 @@ export default function JobSearch() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  useEffect(() => {
-    if (configured) fetchJobs(DEFAULT_FILTERS);
-  }, [configured]);
-
   const totalPages = Math.min(Math.ceil(count / 20), 100);
 
-  if (!configured) {
-    return (
-      <section className={styles.section}>
-        <h2 className={styles.title}>Job Search</h2>
-        <p className={styles.subtitle}>Powered by Adzuna API</p>
-        <div className={styles.notConfigured}>
-          Adzuna API is not configured. Set{" "}
-          <strong>VITE_ADZUNA_APP_ID</strong> and{" "}
-          <strong>VITE_ADZUNA_APP_KEY</strong> in your{" "}
-          <code>.env</code> file.
-        </div>
-      </section>
-    );
-  }
-
   return (
-    <section className={styles.section}>
+    <section className={styles.section} data-slot="job-search">
       <h2 className={styles.title}>Job Search</h2>
       <p className={styles.subtitle}>Powered by Adzuna API</p>
 
       <JobFilters filters={filters} onChange={setFilters} onSubmit={handleSubmit} />
 
       {error ? (
-        <div className={styles.error}>
+        <div className={styles.error} role="alert" aria-live="assertive">
           <strong>Error:</strong> {error}
         </div>
       ) : null}
 
       {loading ? (
-        <div className={styles.loading}>
-          <span className={styles.loadingDot} />
-          <span className={styles.loadingDot} />
-          <span className={styles.loadingDot} />
+        <div className={styles.loading} aria-live="polite" aria-busy="true">
+          <span className={styles.loadingDot} aria-hidden="true" />
+          <span className={styles.loadingDot} aria-hidden="true" />
+          <span className={styles.loadingDot} aria-hidden="true" />
           Loading jobs...
         </div>
       ) : null}
 
       {!loading && !error && jobs.length === 0 ? (
-        <p className={styles.empty}>No jobs found. Try adjusting your filters.</p>
+        <p className={styles.empty} aria-live="polite">No jobs found. Try adjusting your filters.</p>
       ) : null}
 
       {!loading && jobs.length > 0 ? (
         <>
-          <p className={styles.resultCount}>
+          <p className={styles.resultCount} aria-live="polite">
             {count.toLocaleString()} job{count !== 1 ? "s" : ""} found
           </p>
-          <ul className={styles.list}>
+          <ul className={styles.list} role="list" aria-label="Job listings">
             {jobs.map((job, i) => (
               <JobCard key={job.id ?? i} job={job} />
             ))}
           </ul>
 
           {totalPages > 1 ? (
-            <div className={styles.pagination}>
+            <div className={styles.pagination} role="navigation" aria-label="Pagination">
               <button
                 disabled={filters.page <= 1}
                 onClick={() => goToPage(filters.page - 1)}
                 className={styles.pageBtn}
+                aria-label="Previous page"
               >
                 Prev
               </button>
@@ -156,6 +153,8 @@ export default function JobSearch() {
                       className={`${styles.pageBtn}${
                         page === filters.page ? ` ${styles.pageBtnActive}` : ""
                       }`}
+                      aria-label={`Page ${page}`}
+                      aria-current={page === filters.page ? "page" : undefined}
                     >
                       {page}
                     </button>
@@ -166,6 +165,7 @@ export default function JobSearch() {
                 disabled={filters.page >= totalPages}
                 onClick={() => goToPage(filters.page + 1)}
                 className={styles.pageBtn}
+                aria-label="Next page"
               >
                 Next
               </button>

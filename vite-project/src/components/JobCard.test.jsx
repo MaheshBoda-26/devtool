@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import JobCard from '../components/JobCard'
+import { MemoizedJobCard as JobCard } from '../components/JobCard'
 
 describe('JobCard', () => {
   const mockJob = {
@@ -23,7 +23,7 @@ describe('JobCard', () => {
     const link = screen.getByRole('link')
     expect(link).toHaveAttribute('href', 'https://adzuna.com/job/1')
     expect(link).toHaveAttribute('target', '_blank')
-    expect(link).toHaveAttribute('rel', 'noreferrer')
+    expect(link).toHaveAttribute('rel', 'noreferrer noopener')
     expect(link).toHaveTextContent('Senior React Developer')
   })
 
@@ -54,19 +54,22 @@ describe('JobCard', () => {
   it('renders posted date formatted', () => {
     render(<JobCard job={mockJob} />)
 
-    expect(screen.getByText(/Posted: Jan 15, 2024/)).toBeInTheDocument()
+    const postedTag = screen.getByText('Posted:').parentElement
+    expect(postedTag).toHaveTextContent(/Jan 15, 2024/)
   })
 
   it('renders contract type', () => {
     render(<JobCard job={mockJob} />)
 
-    expect(screen.getByText('Contract: permanent')).toBeInTheDocument()
+    const contractTag = screen.getByText('Contract:').parentElement
+    expect(contractTag).toHaveTextContent('permanent')
   })
 
   it('renders contract time', () => {
     render(<JobCard job={mockJob} />)
 
-    expect(screen.getByText('Hours: full_time')).toBeInTheDocument()
+    const hoursTag = screen.getByText('Hours:').parentElement
+    expect(hoursTag).toHaveTextContent('full_time')
   })
 
   it('handles missing salary', () => {
@@ -115,7 +118,8 @@ describe('JobCard', () => {
     const jobNoDate = { ...mockJob, created: null }
     render(<JobCard job={jobNoDate} />)
 
-    expect(screen.getByText('Posted: Unknown')).toBeInTheDocument()
+    const postedTag = screen.getByText('Posted:').parentElement
+    expect(postedTag).toHaveTextContent('Unknown date')
   })
 
   it('handles missing contract type', () => {

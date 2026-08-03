@@ -1,8 +1,5 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, lazy, Suspense } from "react";
 import ParticleField from "./ParticleField";
-import HomePage from "./HomePage";
-import FeaturesPage from "./FeaturesPage";
-import AboutPage from "./AboutPage";
 import styles from "./LandingPages.module.css";
 
 function ErrorBoundary({ children, fallback }) {
@@ -13,12 +10,16 @@ function ErrorBoundary({ children, fallback }) {
       setHasError(true);
     };
 
+    const handleUnhandledRejection = () => {
+      setHasError(true);
+    };
+
     window.addEventListener("error", handleError);
-    window.addEventListener("unhandledrejection", () => setHasError(true));
+    window.addEventListener("unhandledrejection", handleUnhandledRejection);
 
     return () => {
       window.removeEventListener("error", handleError);
-      window.removeEventListener("unhandledrejection", () => {});
+      window.removeEventListener("unhandledrejection", handleUnhandledRejection);
     };
   }, []);
 
@@ -29,6 +30,11 @@ function ErrorBoundary({ children, fallback }) {
   return children;
 }
 
+// Code-split heavy pages
+const HomePage = lazy(() => import("./HomePage"));
+const FeaturesPage = lazy(() => import("./FeaturesPage"));
+const AboutPage = lazy(() => import("./AboutPage"));
+
 const PAGES = [
   { key: "home", label: "Home", icon: "home" },
   { key: "features", label: "Features", icon: "features" },
@@ -37,13 +43,13 @@ const PAGES = [
 
 const ICONS = {
   home: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
       <polyline points="9 22 9 12 15 12 15 22"/>
     </svg>
   ),
   features: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <rect x="3" y="3" width="7" height="7" rx="1"/>
       <rect x="14" y="3" width="7" height="7" rx="1"/>
       <rect x="3" y="14" width="7" height="7" rx="1"/>
@@ -51,7 +57,7 @@ const ICONS = {
     </svg>
   ),
   about: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       <circle cx="12" cy="12" r="10"/>
       <path d="M12 16v-4M12 8h.01"/>
     </svg>
@@ -61,16 +67,28 @@ const ICONS = {
 function renderPage(pageKey, navigate) {
   switch (pageKey) {
     case "features":
-      return <FeaturesPage onNavigate={navigate} key="features" />;
+      return (
+        <Suspense fallback={<div className={styles.page} aria-busy="true">Loading...</div>}>
+          <FeaturesPage onNavigate={navigate} key="features" />
+        </Suspense>
+      );
     case "about":
-      return <AboutPage onNavigate={navigate} key="about" />;
+      return (
+        <Suspense fallback={<div className={styles.page} aria-busy="true">Loading...</div>}>
+          <AboutPage onNavigate={navigate} key="about" />
+        </Suspense>
+      );
     case "home":
     default:
-      return <HomePage onNavigate={navigate} key="home" />;
+      return (
+        <Suspense fallback={<div className={styles.page} aria-busy="true">Loading...</div>}>
+          <HomePage onNavigate={navigate} key="home" />
+        </Suspense>
+      );
   }
 }
 
-export default function LandingPage({ onEnter }) {
+export function LandingPage({ onEnter }) {
   const [activePage, setActivePage] = useState("home");
   const [pageTransition, setPageTransition] = useState(false);
   const [transitionDirection, setTransitionDirection] = useState(0);
@@ -121,7 +139,11 @@ export default function LandingPage({ onEnter }) {
   }, [handleKeyDown]);
 
   return (
-    <div className={styles.landingWrapper}>
+    <div className={styles.landingWrapper} data-slot="landing-page">
+      <a href="#main-content" className={styles.skipLink}>
+        Skip to main content
+      </a>
+
       <ErrorBoundary fallback={<div className={styles.errorFallback}>Failed to load background</div>}>
         <ParticleField />
       </ErrorBoundary>
@@ -133,7 +155,7 @@ export default function LandingPage({ onEnter }) {
       >
         <div className={styles.navInner}>
           <a href="#" className={styles.navBrand} onClick={(e) => { e.preventDefault(); navigate("home"); }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
             </svg>
             <span>DevTool</span>
@@ -158,8 +180,9 @@ export default function LandingPage({ onEnter }) {
             <button
               className={`${styles.cta} ${styles.ctaGhost} ${styles.navCta}`}
               onClick={() => onEnter("github")}
+              aria-label="Open GitHub Repos tool"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
               </svg>
               <span>GitHub</span>
@@ -167,8 +190,9 @@ export default function LandingPage({ onEnter }) {
             <button
               className={`${styles.cta} ${styles.ctaPrimary} ${styles.navCta}`}
               onClick={() => onEnter("jobs")}
+              aria-label="Open Job Search tool"
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
                 <circle cx="9" cy="7" r="4"/>
                 <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
@@ -180,7 +204,7 @@ export default function LandingPage({ onEnter }) {
         </div>
       </nav>
 
-      <main className={styles.main} role="main">
+      <main id="main-content" className={styles.main} role="main">
         <div
           className={`${styles.pageContainer} ${pageTransition ? styles.pageExiting : ""}`}
           style={{

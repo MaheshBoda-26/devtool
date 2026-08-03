@@ -1,121 +1,103 @@
-export default function JobCard({ job }) {
+import { memo } from "react";
+import PropTypes from "prop-types";
+import styles from "./JobCard.module.css";
+
+/**
+ * JobCard component - displays a job listing with title, company, location, salary, description, and metadata
+ * @param {Object} props - Component props
+ * @param {Object} props.job - Job data object from Adzuna API
+ * @param {string} [props.className] - Additional CSS classes
+ * @returns {JSX.Element}
+ */
+export function JobCard({ job, className }) {
+  const cardClasses = `${styles.card} ${className ?? ""}`.trim();
+  const salary = formatSalary(job);
+  const location = job.location?.display_name;
+  const contractType = job.contract_type;
+  const contractTime = job.contract_time;
+
   return (
     <li>
       <a
         href={job.redirect_url}
         target="_blank"
-        rel="noreferrer"
-        style={{
-          display: "block",
-          background: "var(--surface)",
-          border: "1px solid var(--border-faint)",
-          borderRadius: "var(--radius-lg)",
-          padding: "var(--space-lg)",
-          textDecoration: "none",
-          transition:
-            "border-color var(--duration-fast) var(--ease-out), background var(--duration-fast) var(--ease-out)",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = "var(--border)";
-          e.currentTarget.style.background = "var(--surface-raised)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = "var(--border-faint)";
-          e.currentTarget.style.background = "var(--surface)";
-        }}
+        rel="noreferrer noopener"
+        className={cardClasses}
+        data-slot="job-card"
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: "var(--space-md)",
-            alignItems: "baseline",
-          }}
-        >
-          <span
-            style={{
-              fontWeight: 600,
-              fontSize: "1.0625rem",
-              color: "var(--primary)",
-            }}
-          >
-            {job.title}
-          </span>
-          {formatSalary(job) ? (
-            <span
-              style={{
-                color: "var(--success)",
-                fontSize: "0.875rem",
-                fontWeight: 700,
-                whiteSpace: "nowrap",
-              }}
-            >
-              {formatSalary(job)}
-            </span>
-          ) : null}
+        <div className={styles.header}>
+          <span className={styles.title}>{job.title}</span>
+          {salary && <span className={styles.salary}>{salary}</span>}
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            gap: "var(--space-sm)",
-            flexWrap: "wrap",
-            alignItems: "baseline",
-            color: "var(--ink-dim)",
-            fontSize: "0.875rem",
-            marginTop: "var(--space-sm)",
-          }}
-        >
-          <span style={{ fontWeight: 600, color: "var(--ink)" }}>
+        <div className={styles.meta}>
+          <span className={styles.company}>
             {job.company?.display_name ?? "Unknown company"}
           </span>
-          {job.location?.display_name ? (
-            <span style={{ color: "var(--muted)" }}>
-              {job.location.display_name}
-            </span>
-          ) : null}
+          {location && (
+            <span className={styles.location}>{location}</span>
+          )}
         </div>
 
-        {job.description ? (
+        {job.description && (
           <p
-            style={{
-              color: "var(--ink-dim)",
-              fontSize: "0.875rem",
-              lineHeight: 1.5,
-              margin: "var(--space-md) 0 0",
-              maxWidth: "72ch",
-            }}
+            className={styles.description}
             dangerouslySetInnerHTML={{
               __html: stripHtml(job.description, 280),
             }}
           />
-        ) : null}
+        )}
 
-        <div
-          style={{
-            display: "flex",
-            gap: "var(--space-sm)",
-            flexWrap: "wrap",
-            color: "var(--muted)",
-            fontSize: "0.75rem",
-            marginTop: "var(--space-md)",
-          }}
-        >
-          <span>
-            Posted: {formatDate(job.created) ?? "Unknown"}
+        <div className={styles.tags}>
+          <span className={styles.tag}>
+            <span className={styles.tagLabel}>Posted:</span>
+            <span className={styles.tagValue}>
+              {formatDate(job.created) ?? "Unknown date"}
+            </span>
           </span>
-          {job.contract_type ? (
-            <span>Contract: {job.contract_type}</span>
-          ) : null}
-          {job.contract_time ? (
-            <span>Hours: {job.contract_time}</span>
-          ) : null}
+          {contractType && (
+            <span className={styles.tag}>
+              <span className={styles.tagLabel}>Contract:</span>
+              <span className={styles.tagValue}>{contractType}</span>
+            </span>
+          )}
+          {contractTime && (
+            <span className={styles.tag}>
+              <span className={styles.tagLabel}>Hours:</span>
+              <span className={styles.tagValue}>{contractTime}</span>
+            </span>
+          )}
         </div>
       </a>
     </li>
   );
 }
 
+JobCard.propTypes = {
+  job: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    redirect_url: PropTypes.string.isRequired,
+    company: PropTypes.shape({
+      display_name: PropTypes.string,
+    }),
+    location: PropTypes.shape({
+      display_name: PropTypes.string,
+    }),
+    salary_min: PropTypes.number,
+    salary_max: PropTypes.number,
+    description: PropTypes.string,
+    created: PropTypes.string,
+    contract_type: PropTypes.string,
+    contract_time: PropTypes.string,
+  }).isRequired,
+  className: PropTypes.string,
+};
+
+/**
+ * Formats salary range for display
+ * @param {Object} job - Job object with salary_min and salary_max
+ * @returns {string|null} Formatted salary string or null if no salary data
+ */
 function formatSalary(job) {
   const min = job?.salary_min;
   const max = job?.salary_max;
@@ -124,26 +106,45 @@ function formatSalary(job) {
     typeof n === "number"
       ? n.toLocaleString(undefined, { maximumFractionDigits: 0 })
       : n;
-  if (min && max) return `${fmt(min)}&nbsp;–&nbsp;${fmt(max)}`;
+  if (min && max) return `${fmt(min)} – ${fmt(max)}`;
   return fmt(min || max);
 }
 
+/**
+ * Formats ISO date string to localized date
+ * @param {string} iso - ISO date string
+ * @returns {string|null} Formatted date or null if invalid
+ */
 function formatDate(iso) {
   if (!iso) return null;
   try {
     const d = new Date(iso);
+    if (isNaN(d.getTime())) return null;
     return d.toLocaleDateString(undefined, {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
   } catch {
-    return iso;
+    return null;
   }
 }
 
+/**
+ * Strips HTML tags and truncates text
+ * @param {string} html - HTML string
+ * @param {number} maxLength - Maximum length of output
+ * @returns {string} Cleaned and truncated text
+ */
 function stripHtml(html, maxLength) {
-  const stripped = html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+  if (!html) return "";
+  const stripped = html
+    .replace(/<[^>]*>/g, "")
+    .replace(/&[a-z]+;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
   if (stripped.length <= maxLength) return stripped;
-  return stripped.slice(0, maxLength).replace(/\s+\S*$/, "") + "\u2026";
+  return stripped.slice(0, maxLength).replace(/\s+\S*$/, "") + "…";
 }
+
+export const MemoizedJobCard = memo(JobCard);

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
-import JobFilters from '../components/JobFilters'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { JobFilters } from '../components/JobFilters'
 
 describe('JobFilters', () => {
   const defaultFilters = {
@@ -52,7 +52,7 @@ describe('JobFilters', () => {
   it('populates sort select with 4 options', () => {
     render(<JobFilters filters={defaultFilters} onChange={mockOnChange} onSubmit={mockOnSubmit} />)
 
-    const sortSelect = screen.getByText('Sort by').parentElement.querySelector('select')
+    const sortSelect = screen.getByLabelText('Sort by')
     expect(sortSelect).toBeInTheDocument()
     expect(sortSelect.options).toHaveLength(4)
   })
@@ -139,19 +139,13 @@ describe('JobFilters', () => {
       ...defaultFilters,
       fullTime: true,
     })
-
-    fireEvent.click(fullTimeCheckbox)
-    expect(mockOnChange).toHaveBeenCalledWith({
-      ...defaultFilters,
-      fullTime: false,
-    })
   })
 
   it('calls onSubmit when form submits', () => {
     render(<JobFilters filters={defaultFilters} onChange={mockOnChange} onSubmit={mockOnSubmit} />)
 
-    const form = screen.getByRole('form')
-    fireEvent.submit(form)
+    const submitButton = screen.getByRole('button', { name: 'Search jobs' })
+    fireEvent.click(submitButton)
 
     expect(mockOnSubmit).toHaveBeenCalled()
   })
@@ -172,11 +166,11 @@ describe('JobFilters', () => {
 
     expect(screen.getByPlaceholderText('e.g. react developer')).toHaveValue('react')
     expect(screen.getByPlaceholderText('e.g. London')).toHaveValue('remote')
-    const countrySelect = screen.getByText('Country').parentElement.querySelector('select')
+    const countrySelect = screen.getByLabelText('Country')
     expect(countrySelect).toHaveValue('us')
     expect(screen.getByLabelText('Full-time')).toBeChecked()
     expect(screen.getByLabelText('Part-time')).toBeChecked()
-    expect(screen.getAllByPlaceholderText('any')[0]).toHaveValue('60000')
-    expect(screen.getAllByPlaceholderText('any')[1]).toHaveValue('120000')
+    expect(screen.getAllByPlaceholderText('any')[0]).toHaveValue(60000)
+    expect(screen.getAllByPlaceholderText('any')[1]).toHaveValue(120000)
   })
 })

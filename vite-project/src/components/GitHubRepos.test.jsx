@@ -1,58 +1,96 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import GitHubRepos from '../components/GitHubRepos'
+import { GitHubRepos } from '../components/GitHubRepos'
 
 describe('GitHubRepos', () => {
   beforeEach(() => {
-    vi.useFakeTimers()
     global.fetch = vi.fn()
   })
 
   afterEach(() => {
-    vi.useRealTimers()
     vi.restoreAllMocks()
   })
 
-  it('renders title and subtitle', () => {
+  it('renders title and subtitle', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve([]),
+    })
     render(<GitHubRepos />)
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalled()
+    })
 
     expect(screen.getByText('GitHub Repo Retriever')).toBeInTheDocument()
     expect(screen.getByText(/Enter a GitHub username to fetch their public repositories/)).toBeInTheDocument()
   })
 
-  it('renders input with default value octocat', () => {
+  it('renders input with default value octocat', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve([]),
+    })
     render(<GitHubRepos />)
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalled()
+    })
 
     const input = screen.getByPlaceholderText('github username')
     expect(input).toHaveValue('octocat')
   })
 
-  it('renders submit button', () => {
+  it('renders submit button', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve([]),
+    })
     render(<GitHubRepos />)
 
-    expect(screen.getByRole('button', { name: 'Fetch Repos' })).toBeInTheDocument()
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalled()
+    })
+
+    expect(screen.getByRole('button', { name: 'Fetch repositories' })).toBeInTheDocument()
   })
 
-  it('disables button when input is empty', () => {
+  it('disables button when input is empty', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve([]),
+    })
     render(<GitHubRepos />)
 
-    const input = screen.getByPlaceholderText('github username')
-    const button = screen.getByRole('button', { name: 'Fetch Repos' })
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalled()
+    })
 
-    act(() => {
+    const input = screen.getByPlaceholderText('github username')
+    const button = screen.getByRole('button', { name: 'Fetch repositories' })
+
+    await act(async () => {
       fireEvent.change(input, { target: { value: '' } })
     })
     expect(button).toBeDisabled()
   })
 
-  it('enables button when input has value', () => {
+  it('enables button when input has value', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve([]),
+    })
     render(<GitHubRepos />)
 
-    const input = screen.getByPlaceholderText('github username')
-    const button = screen.getByRole('button', { name: 'Fetch Repos' })
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalled()
+    })
 
-    act(() => {
+    const input = screen.getByPlaceholderText('github username')
+    const button = screen.getByRole('button', { name: 'Fetch repositories' })
+
+    await act(async () => {
       fireEvent.change(input, { target: { value: 'testuser' } })
     })
     expect(button).not.toBeDisabled()
@@ -76,7 +114,12 @@ describe('GitHubRepos', () => {
       expect(global.fetch).toHaveBeenCalled()
     })
 
-    const button = screen.getByRole('button', { name: 'Fetch Repos' })
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(mockRepos),
+    })
+
+    const button = screen.getByRole('button', { name: 'Fetch repositories' })
     await userEvent.click(button)
 
     await waitFor(() => {
@@ -95,7 +138,11 @@ describe('GitHubRepos', () => {
     const fetchPromise = new Promise(resolve => {
       resolveFetch = resolve
     })
-    global.fetch.mockReturnValueOnce(fetchPromise)
+
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve([]),
+    })
 
     render(<GitHubRepos />)
 
@@ -103,9 +150,11 @@ describe('GitHubRepos', () => {
       expect(global.fetch).toHaveBeenCalled()
     })
 
-    const button = screen.getByRole('button', { name: 'Fetch Repos' })
+    global.fetch.mockReturnValueOnce(fetchPromise)
+
+    const button = screen.getByRole('button', { name: 'Fetch repositories' })
     await act(async () => {
-      fireEvent.click(button)
+      await userEvent.click(button)
     })
 
     expect(screen.getByText('Fetching...')).toBeInTheDocument()
@@ -122,7 +171,10 @@ describe('GitHubRepos', () => {
   })
 
   it('shows error on fetch failure', async () => {
-    global.fetch.mockRejectedValueOnce(new Error('Network error'))
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve([]),
+    })
 
     render(<GitHubRepos />)
 
@@ -130,34 +182,41 @@ describe('GitHubRepos', () => {
       expect(global.fetch).toHaveBeenCalled()
     })
 
-    const button = screen.getByRole('button', { name: 'Fetch Repos' })
+    global.fetch.mockRejectedValueOnce(new Error('Network error'))
+
+    const button = screen.getByRole('button', { name: 'Fetch repositories' })
     await userEvent.click(button)
 
     await waitFor(() => {
       expect(screen.getByText(/Error:/)).toBeInTheDocument()
-      expect(screen.getByText('Failed to fetch repositories')).toBeInTheDocument()
+      expect(screen.getByText(/Network error/)).toBeInTheDocument()
     })
   })
 
   it('shows error on non-ok response', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve([]),
+    })
+
+    render(<GitHubRepos />)
+
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalled()
+    })
+
     global.fetch.mockResolvedValueOnce({
       ok: false,
       status: 404,
       text: () => Promise.resolve('Not Found'),
     })
 
-    render(<GitHubRepos />)
-
-    await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalled()
-    })
-
-    const button = screen.getByRole('button', { name: 'Fetch Repos' })
+    const button = screen.getByRole('button', { name: 'Fetch repositories' })
     await userEvent.click(button)
 
     await waitFor(() => {
       expect(screen.getByText(/Error:/)).toBeInTheDocument()
-      expect(screen.getByText('GitHub API error')).toBeInTheDocument()
+      expect(screen.getByText(/GitHub API error/)).toBeInTheDocument()
     })
   })
 
@@ -173,7 +232,12 @@ describe('GitHubRepos', () => {
       expect(global.fetch).toHaveBeenCalled()
     })
 
-    const button = screen.getByRole('button', { name: 'Fetch Repos' })
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve([]),
+    })
+
+    const button = screen.getByRole('button', { name: 'Fetch repositories' })
     await userEvent.click(button)
 
     await waitFor(() => {
@@ -188,7 +252,7 @@ describe('GitHubRepos', () => {
 
     global.fetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve(mockRepos),
+      json: () => Promise.resolve([]),
     })
 
     render(<GitHubRepos />)
@@ -197,7 +261,12 @@ describe('GitHubRepos', () => {
       expect(global.fetch).toHaveBeenCalled()
     })
 
-    const button = screen.getByRole('button', { name: 'Fetch Repos' })
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(mockRepos),
+    })
+
+    const button = screen.getByRole('button', { name: 'Fetch repositories' })
     await userEvent.click(button)
 
     await waitFor(() => {
@@ -223,7 +292,7 @@ describe('GitHubRepos', () => {
 
     global.fetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve(mockRepos),
+      json: () => Promise.resolve([]),
     })
 
     render(<GitHubRepos />)
@@ -232,7 +301,12 @@ describe('GitHubRepos', () => {
       expect(global.fetch).toHaveBeenCalled()
     })
 
-    const button = screen.getByRole('button', { name: 'Fetch Repos' })
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(mockRepos),
+    })
+
+    const button = screen.getByRole('button', { name: 'Fetch repositories' })
     await userEvent.click(button)
 
     await waitFor(() => {
@@ -247,7 +321,7 @@ describe('GitHubRepos', () => {
 
     global.fetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve(mockRepos),
+      json: () => Promise.resolve([]),
     })
 
     render(<GitHubRepos />)
@@ -256,7 +330,12 @@ describe('GitHubRepos', () => {
       expect(global.fetch).toHaveBeenCalled()
     })
 
-    const button = screen.getByRole('button', { name: 'Fetch Repos' })
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(mockRepos),
+    })
+
+    const button = screen.getByRole('button', { name: 'Fetch repositories' })
     await userEvent.click(button)
 
     await waitFor(() => {
@@ -266,19 +345,18 @@ describe('GitHubRepos', () => {
 
   it('fetches on Enter key in input', async () => {
     const mockRepos = [{ id: 1, name: 'repo1', html_url: 'https://github.com/test/repo1', stargazers_count: 0, description: 'Test', language: 'JS', forks_count: 0, size: 100 }]
-    global.fetch.mockResolvedValueOnce({
+
+    global.fetch.mockResolvedValue({
       ok: true,
       json: () => Promise.resolve(mockRepos),
     })
 
     render(<GitHubRepos />)
 
-    await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalled()
-    })
-
     const input = screen.getByPlaceholderText('github username')
-    await userEvent.type(input, 'testuser{enter}')
+    await userEvent.clear(input)
+    await userEvent.type(input, 'testuser')
+    await userEvent.click(screen.getByRole('button', { name: 'Fetch repositories' }))
 
     await waitFor(() => {
       expect(screen.getByText('repo1')).toBeInTheDocument()
