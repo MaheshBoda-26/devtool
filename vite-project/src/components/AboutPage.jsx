@@ -59,7 +59,7 @@ const ARCHITECTURE = [
       "App.module.css — Layout, tabs, panel transitions",
       "GitHubRepos.module.css — Form, list, card, loading, empty states",
       "JobSearch.module.css — Section, filters grid, pagination, results",
-      "JobFilters.module.css — Inline styles (migrate to module)",
+      "JobFilters.module.css — Filter form with 9 fields",
       "LandingPages.module.css — Multi-page landing styles",
     ],
   },
@@ -69,7 +69,7 @@ const ARCHITECTURE = [
     details: [
       "Entrance: Staggered opacity + translateY (300-600ms, ease-out)",
       "Hover: Transform + box-shadow + border-color (200ms)",
-      "Canvas: 100 particles, noise-based drift, connection lines",
+      "Canvas: 60 particles, 3 gradient orbs, noise-based drift, connection lines",
       "Reduced motion: Disables all transitions/animations instantly",
     ],
   },
@@ -134,6 +134,14 @@ export default function AboutPage({ onNavigate }) {
   const refs = useRef({});
 
   useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      Object.keys(refs.current).forEach((key) => {
+        setVisible((prev) => ({ ...prev, [key]: true }));
+      });
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -151,7 +159,7 @@ export default function AboutPage({ onNavigate }) {
 
   return (
     <div className={styles.page}>
-      <header className={styles.pageHeader} id="about-hero" ref={(el) => (refs.current.hero = el)}>
+      <header className={`${styles.pageHeader} animate-on-scroll`} id="about-hero" ref={(el) => (refs.current.hero = el)}>
         <div className={styles.heroContent}>
           <div className={`${styles.badge} ${visible.hero ? styles.visible : ""}`} style={{ animationDelay: "0ms" }}>
             <span className={styles.badgeDot} />
@@ -171,7 +179,7 @@ export default function AboutPage({ onNavigate }) {
         </div>
       </header>
 
-      <section className={styles.techStackSection} id="tech-stack" ref={(el) => (refs.current.techStack = el)}>
+      <section className={`${styles.techStackSection} animate-on-scroll`} id="tech-stack" ref={(el) => (refs.current.techStack = el)}>
         <div className={styles.sectionWrapper}>
           <h2 className={`${styles.sectionTitle} ${visible["tech-stack"] ? styles.visible : ""}`}>
             Technology Stack
@@ -197,7 +205,7 @@ export default function AboutPage({ onNavigate }) {
         </div>
       </section>
 
-      <section className={styles.architectureSection} id="architecture" ref={(el) => (refs.current.architecture = el)}>
+      <section className={`${styles.architectureSection} animate-on-scroll`} id="architecture" ref={(el) => (refs.current.architecture = el)}>
         <div className={styles.sectionWrapper}>
           <h2 className={`${styles.sectionTitle} ${visible.architecture ? styles.visible : ""}`}>
             Architecture
@@ -216,7 +224,7 @@ export default function AboutPage({ onNavigate }) {
         </div>
       </section>
 
-      <section className={styles.buildSection} id="build-process" ref={(el) => (refs.current.build = el)}>
+      <section className={`${styles.buildSection} animate-on-scroll`} id="build-process" ref={(el) => (refs.current.build = el)}>
         <div className={styles.sectionWrapper}>
           <h2 className={`${styles.sectionTitle} ${visible["build-process"] ? styles.visible : ""}`}>
             Build & Deploy Process
@@ -238,7 +246,7 @@ export default function AboutPage({ onNavigate }) {
         </div>
       </section>
 
-      <section className={styles.decisionsSection} id="design-decisions" ref={(el) => (refs.current.decisions = el)}>
+      <section className={`${styles.decisionsSection} animate-on-scroll`} id="design-decisions" ref={(el) => (refs.current.decisions = el)}>
         <div className={styles.sectionWrapper}>
           <h2 className={`${styles.sectionTitle} ${visible["design-decisions"] ? styles.visible : ""}`}>
             Key Design Decisions
@@ -254,7 +262,7 @@ export default function AboutPage({ onNavigate }) {
         </div>
       </section>
 
-      <section className={styles.projectInfoSection} id="project-info" ref={(el) => (refs.current.info = el)}>
+      <section className={`${styles.projectInfoSection} animate-on-scroll`} id="project-info" ref={(el) => (refs.current.info = el)}>
         <div className={styles.sectionWrapper}>
           <h2 className={`${styles.sectionTitle} ${visible["project-info"] ? styles.visible : ""}`}>
             Project Information
@@ -311,7 +319,7 @@ npm run preview  # Preview production build`}</pre>
         </div>
       </section>
 
-      <footer className={styles.pageFooter}>
+      <footer className={`${styles.pageFooter} animate-on-scroll`}>
         <div className={styles.sectionWrapper}>
           <button className={`${styles.cta} ${styles.ctaSecondary}`} onClick={() => onNavigate("features")}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

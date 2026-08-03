@@ -29,7 +29,7 @@ const VALUE_PROPS = [
 ];
 
 const QUICK_START = [
-  { cmd: "git clone <repo-url>", desc: "Clone the repository" },
+  { cmd: "git clone <your-repo-url>", desc: "Clone the repository" },
   { cmd: "cd vite-project", desc: "Enter project directory" },
   { cmd: "npm install", desc: "Install dependencies" },
   { cmd: "cp .env.example .env", desc: "Configure Adzuna API (optional)" },
@@ -40,16 +40,36 @@ export default function HomePage({ onNavigate }) {
   const [visible, setVisible] = useState({});
   const refs = useRef({});
   const [parallaxOffset, setParallaxOffset] = useState(0);
+  const rafRef = useRef(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setParallaxOffset(window.scrollY * 0.15);
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      Object.keys(refs.current).forEach((key) => {
+        setVisible((prev) => ({ ...prev, [key]: true }));
+      });
+      return;
+    }
+
+    // Smooth parallax with requestAnimationFrame
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+
+    const updateParallax = () => {
+      setParallaxOffset(lastScrollY * 0.15);
+      ticking = false;
     };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
-  useEffect(() => {
+    const handleScroll = () => {
+      lastScrollY = window.scrollY;
+      if (!ticking) {
+        rafRef.current = requestAnimationFrame(updateParallax);
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -74,12 +94,12 @@ export default function HomePage({ onNavigate }) {
           aria-hidden="true"
         />
         <div className={styles.heroContent}>
-          <div className={`${styles.badge} ${visible.hero ? styles.visible : ""}`} style={{ animationDelay: "0ms" }}>
+          <div className={`${styles.badge} ${visible.hero ? styles.visible : ""} animate-on-scroll`} style={{ animationDelay: "0ms" }}>
             <span className={styles.badgeDot} />
             DevTool — Dual-purpose utility
           </div>
 
-          <h1 className={`${styles.headline} ${visible.hero ? styles.visible : ""}`} style={{ animationDelay: "100ms" }}>
+          <h1 className={`${styles.headline} ${visible.hero ? styles.visible : ""} animate-on-scroll`} style={{ animationDelay: "100ms" }}>
             <span className={styles.word}>Repo</span>
             <span className={styles.word}>browser</span>
             <span className={styles.word}>&</span>
@@ -88,12 +108,12 @@ export default function HomePage({ onNavigate }) {
             <span className={styles.word}>.</span>
           </h1>
 
-          <p className={`${styles.subhead} ${visible.hero ? styles.visible : ""}`} style={{ animationDelay: "250ms" }}>
+          <p className={`${styles.subhead} ${visible.hero ? styles.visible : ""} animate-on-scroll`} style={{ animationDelay: "250ms" }}>
             A fast, focused developer tool. Fetch GitHub repositories by username and search Adzuna job listings across 19 countries.
             Dark mode by default. Zero friction. Built for developers who value speed and clarity.
           </p>
 
-          <div className={`${styles.heroActions} ${visible.hero ? styles.visible : ""}`} style={{ animationDelay: "400ms" }}>
+          <div className={`${styles.heroActions} ${visible.hero ? styles.visible : ""} animate-on-scroll`} style={{ animationDelay: "400ms" }}>
             <button className={`${styles.cta} ${styles.ctaPrimary}`} onClick={() => onNavigate("features")}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M12 5v14M19 12H5"/>
@@ -122,7 +142,7 @@ export default function HomePage({ onNavigate }) {
         </div>
       </header>
 
-      <section className={styles.valueProps} id="value-props" ref={(el) => (refs.current.valueProps = el)}>
+      <section className={`${styles.valueProps} animate-on-scroll`} id="value-props" ref={(el) => (refs.current.valueProps = el)}>
         <div className={styles.sectionWrapper}>
           <h2 className={`${styles.sectionTitle} ${visible["value-props"] ? styles.visible : ""}`}>
             Why DevTool?
@@ -166,7 +186,7 @@ export default function HomePage({ onNavigate }) {
         </div>
       </section>
 
-      <section className={styles.quickStart} id="quick-start" ref={(el) => (refs.current.quickStart = el)}>
+      <section className={`${styles.quickStart} animate-on-scroll`} id="quick-start" ref={(el) => (refs.current.quickStart = el)}>
         <div className={styles.sectionWrapper}>
           <h2 className={`${styles.sectionTitle} ${visible["quick-start"] ? styles.visible : ""}`}>
             Quick Start
@@ -194,7 +214,7 @@ export default function HomePage({ onNavigate }) {
         </div>
       </section>
 
-      <section className={styles.ctaSection} id="cta" ref={(el) => (refs.current.cta = el)}>
+      <section className={`${styles.ctaSection} animate-on-scroll`} id="cta" ref={(el) => (refs.current.cta = el)}>
         <div className={styles.sectionWrapper}>
           <div className={`${styles.ctaCard} ${visible.cta ? styles.visible : ""}`}>
             <h2 className={styles.ctaTitle}>Ready to try it?</h2>

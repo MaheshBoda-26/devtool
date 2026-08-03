@@ -1,9 +1,33 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import ParticleField from "./ParticleField";
 import HomePage from "./HomePage";
 import FeaturesPage from "./FeaturesPage";
 import AboutPage from "./AboutPage";
 import styles from "./LandingPages.module.css";
+
+function ErrorBoundary({ children, fallback }) {
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    const handleError = () => {
+      setHasError(true);
+    };
+
+    window.addEventListener("error", handleError);
+    window.addEventListener("unhandledrejection", () => setHasError(true));
+
+    return () => {
+      window.removeEventListener("error", handleError);
+      window.removeEventListener("unhandledrejection", () => {});
+    };
+  }, []);
+
+  if (hasError) {
+    return fallback;
+  }
+
+  return children;
+}
 
 const PAGES = [
   { key: "home", label: "Home", icon: "home" },
@@ -34,53 +58,76 @@ const ICONS = {
   ),
 };
 
+function renderPage(pageKey, navigate) {
+  switch (pageKey) {
+    case "features":
+      return <FeaturesPage onNavigate={navigate} key="features" />;
+    case "about":
+      return <AboutPage onNavigate={navigate} key="about" />;
+    case "home":
+    default:
+      return <HomePage onNavigate={navigate} key="home" />;
+  }
+}
+
 export default function LandingPage({ onEnter }) {
   const [activePage, setActivePage] = useState("home");
-  const [navVisible, setNavVisible] = useState(false);
   const [pageTransition, setPageTransition] = useState(false);
-  const navRef = useRef(null);
+  const [transitionDirection, setTransitionDirection] = useState(0);
+  const [navScrolled, setNavScrolled] = useState(false);
+  const pageKeys = PAGES.map(p => p.key);
+  const currentIndex = pageKeys.indexOf(activePage);
 
   useEffect(() => {
     const handleScroll = () => {
-      setNavVisible(window.scrollY > 50);
+      setNavScrolled(window.scrollY > 20);
     };
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  function navigate(pageKey) {
+  const navigate = useCallback((pageKey) => {
     if (pageKey === "github" || pageKey === "jobs") {
       onEnter(pageKey);
       return;
     }
 
+    const newIndex = pageKeys.indexOf(pageKey);
+    if (newIndex === -1 || newIndex === currentIndex) return;
+
+    setTransitionDirection(newIndex > currentIndex ? 1 : -1);
     setPageTransition(true);
+
     setTimeout(() => {
       setActivePage(pageKey);
       setPageTransition(false);
       window.scrollTo({ top: 0, behavior: "smooth" });
-    }, 150);
-  }
+    }, 180);
+  }, [currentIndex, onEnter, pageKeys]);
 
-  function renderPage() {
-    switch (activePage) {
-      case "features":
-        return <FeaturesPage onNavigate={navigate} key="features" />;
-      case "about":
-        return <AboutPage onNavigate={navigate} key="about" />;
-      case "home":
-      default:
-        return <HomePage onNavigate={navigate} key="home" />;
+  const handleKeyDown = useCallback((e) => {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+
+    if (e.key === "ArrowRight" && currentIndex < pageKeys.length - 1) {
+      navigate(pageKeys[currentIndex + 1]);
+    } else if (e.key === "ArrowLeft" && currentIndex > 0) {
+      navigate(pageKeys[currentIndex - 1]);
     }
-  }
+  }, [currentIndex, navigate, pageKeys]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
 
   return (
     <div className={styles.landingWrapper}>
-      <ParticleField />
+      <ErrorBoundary fallback={<div className={styles.errorFallback}>Failed to load background</div>}>
+        <ParticleField />
+      </ErrorBoundary>
 
       <nav
-        ref={navRef}
-        className={`${styles.nav} ${navVisible ? styles.navVisible : ""} ${pageTransition ? styles.navTransition : ""}`}
+        className={`${styles.nav} ${navScrolled ? styles.scrolled : ""}`}
         role="navigation"
         aria-label="Landing page navigation"
       >
@@ -112,8 +159,8 @@ export default function LandingPage({ onEnter }) {
               className={`${styles.cta} ${styles.ctaGhost} ${styles.navCta}`}
               onClick={() => onEnter("github")}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
               </svg>
               <span>GitHub</span>
             </button>
@@ -136,9 +183,17 @@ export default function LandingPage({ onEnter }) {
       <main className={styles.main} role="main">
         <div
           className={`${styles.pageContainer} ${pageTransition ? styles.pageExiting : ""}`}
-          style={{ opacity: pageTransition ? 0 : 1, transform: pageTransition ? "translateY(10px)" : "translateY(0)" }}
+          style={{
+            opacity: pageTransition ? 0 : 1,
+            transform: pageTransition
+              ? `translateX(${transitionDirection > 0 ? -30 : 30}px) translateY(10px) scale(0.98)`
+              : "translateX(0) translateY(0) scale(1)",
+            transition: pageTransition
+              ? "opacity 180ms cubic-bezier(0.4, 0, 0.2, 1), transform 180ms cubic-bezier(0.4, 0, 0.2, 1)"
+              : "opacity 250ms cubic-bezier(0.4, 0, 0.2, 1), transform 250ms cubic-bezier(0.4, 0, 0.2, 1)",
+          }}
         >
-          {renderPage()}
+          {renderPage(activePage, navigate)}
         </div>
       </main>
     </div>

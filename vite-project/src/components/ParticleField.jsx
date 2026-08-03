@@ -14,6 +14,8 @@ export default function ParticleField() {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setPrefersReducedMotion(mediaQuery.matches);
     const handler = (e) => setPrefersReducedMotion(e.matches);

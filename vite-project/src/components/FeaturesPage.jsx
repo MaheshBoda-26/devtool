@@ -92,6 +92,14 @@ export default function FeaturesPage({ onNavigate }) {
   const [activeTool, setActiveTool] = useState("github");
 
   useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      Object.keys(refs.current).forEach((key) => {
+        setVisible((prev) => ({ ...prev, [key]: true }));
+      });
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -110,9 +118,6 @@ export default function FeaturesPage({ onNavigate }) {
   function toggleCategory(categoryKey) {
     setExpandedCategories((prev) => ({ ...prev, [categoryKey]: !prev[categoryKey] }));
   }
-
-  const features = activeTool === "github" ? GITHUB_FEATURES : JOB_FEATURES;
-  const toolIcon = activeTool === "github" ? ICONS.github : ICONS.briefcase;
 
   function renderFeatureSection(title, icon, features, sectionKey) {
     const isExpanded = expandedCategories[sectionKey];
@@ -166,7 +171,7 @@ export default function FeaturesPage({ onNavigate }) {
 
   return (
     <div className={styles.page}>
-      <header className={styles.pageHeader} id="features-hero" ref={(el) => (refs.current.hero = el)}>
+      <header className={`${styles.pageHeader} animate-on-scroll`} id="features-hero" ref={(el) => (refs.current.hero = el)}>
         <div className={styles.heroContent}>
           <div className={`${styles.badge} ${visible.hero ? styles.visible : ""}`} style={{ animationDelay: "0ms" }}>
             <span className={styles.badgeDot} />
@@ -212,7 +217,7 @@ export default function FeaturesPage({ onNavigate }) {
         renderFeatureSection("Job Search (Adzuna)", ICONS.briefcase, JOB_FEATURES, "job-features")
       )}
 
-      <footer className={styles.pageFooter}>
+      <footer className={`${styles.pageFooter} animate-on-scroll`}>
         <div className={styles.sectionWrapper}>
           <button className={`${styles.cta} ${styles.ctaSecondary}`} onClick={() => onNavigate("home")}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
