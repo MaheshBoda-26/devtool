@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, lazy, Suspense } from "react";
-import ParticleField from "./ParticleField";
+import ThreeDBackground from "./ThreeDBackground";
 import styles from "./LandingPages.module.css";
 
 function ErrorBoundary({ children, fallback }) {
@@ -145,7 +145,7 @@ export function LandingPage({ onEnter }) {
       </a>
 
       <ErrorBoundary fallback={<div className={styles.errorFallback}>Failed to load background</div>}>
-        <ParticleField />
+        <ThreeDBackground />
       </ErrorBoundary>
 
       <nav
