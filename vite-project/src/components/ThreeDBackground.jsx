@@ -158,8 +158,8 @@ export default function ThreeDBackground() {
   const canvasRef = useRef(null);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [mouse, setMouse] = useState({ x: 0.5, y: 0.5 });
-  const [width, setWidth] = useState(0);
-  const [height, setHeight] = useState(0);
+  const [width, setWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 0);
+  const [height, setHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 0);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -173,8 +173,10 @@ export default function ThreeDBackground() {
   useEffect(() => {
     const handleResize = () => {
       if (canvasRef.current) {
-        setWidth(canvasRef.current.clientWidth);
-        setHeight(canvasRef.current.clientHeight);
+        const w = canvasRef.current.clientWidth;
+        const h = canvasRef.current.clientHeight;
+        setWidth(w);
+        setHeight(h);
       }
     };
     handleResize();
@@ -194,8 +196,9 @@ export default function ThreeDBackground() {
   }, []);
 
   const scene = useMemo(() => new THREE.Scene(), []);
-  const camera = useMemo(() => new THREE.PerspectiveCamera(50, width / height || 1, 0.1, 100), [width, height]);
+  const camera = useMemo(() => new THREE.PerspectiveCamera(50, (width / height) || 1, 0.1, 100), [width, height]);
   const renderer = useMemo(() => {
+    if (!canvasRef.current || width === 0 || height === 0) return null;
     const r = new THREE.WebGLRenderer({
       canvas: canvasRef.current,
       alpha: true,
@@ -266,7 +269,7 @@ export default function ThreeDBackground() {
   }, [scene, mesh, wireMesh, camera, geometry, material, wireGeometry, wireMaterial]);
 
   useEffect(() => {
-    if (prefersReducedMotion) return;
+    if (prefersReducedMotion || !renderer) return;
 
     let startTime = performance.now();
     let morphTarget = 0;
@@ -307,8 +310,8 @@ export default function ThreeDBackground() {
         style={{
           position: "fixed",
           inset: 0,
-          zIndex: -2,
-          background: "radial-gradient(ellipse at 20% 20%, oklch(0.4 0.15 185 / 0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, oklch(0.35 0.12 280 / 0.1) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, oklch(0.3 0.1 45 / 0.08) 0%, transparent 50%)",
+          zIndex: 0,
+          background: "radial-gradient(ellipse at 20% 20%, oklch(0.4 0.15 185 / 0.2) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, oklch(0.35 0.12 280 / 0.15) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, oklch(0.3 0.1 45 / 0.12) 0%, transparent 50%)",
         }}
         aria-hidden="true"
       />
@@ -324,7 +327,7 @@ export default function ThreeDBackground() {
         inset: 0,
         width: "100%",
         height: "100%",
-        zIndex: -2,
+        zIndex: 0,
         display: "block",
         pointerEvents: "none",
       }}
