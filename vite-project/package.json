@@ -14,12 +14,10 @@
     "test:ui": "vitest --ui"
   },
   "dependencies": {
-    "@types/three": "^0.185.3",
     "motion": "^12.43.0",
     "playwright": "^1.62.1",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
-    "three": "^0.185.1",
     "vite": "^8.1.1"
   },
   "devDependencies": {

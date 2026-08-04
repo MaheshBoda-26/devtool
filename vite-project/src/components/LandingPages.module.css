@@ -4,19 +4,6 @@
   flex-direction: column;
   position: relative;
   overflow-x: hidden;
-  z-index: 1;
-  isolation: isolate;
-}
-
-.landingWrapper {
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow-x: hidden;
-  z-index: 1;
-  isolation: isolate;
-  background: transparent;
 }
 
 .skipLink {
