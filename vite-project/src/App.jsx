@@ -1,5 +1,6 @@
 import { useState, Suspense, lazy } from "react";
 import styles from "./App.module.css";
+import TechBackground from "./components/TechBackground";
 
 const LandingPage = lazy(() => import("./components/LandingPage").then(m => ({ default: m.LandingPage })));
 const GitHubRepos = lazy(() => import("./components/GitHubRepos").then(m => ({ default: m.GitHubRepos })));
@@ -39,6 +40,7 @@ export function App() {
   if (showLanding) {
     return (
       <Suspense fallback={<LoadingFallback />}>
+        <TechBackground />
         <LandingPage onEnter={handleEnter} />
       </Suspense>
     );
@@ -46,6 +48,7 @@ export function App() {
 
   return (
     <div className={styles.app}>
+      <TechBackground />
       <a href="#main-content" className={styles.skipLink}>
         Skip to main content
       </a>
